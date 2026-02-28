@@ -1,0 +1,26 @@
+{
+  "@context": {
+    "@language": "en-us",
+    "CIP100": "https://github.com/cardano-foundation/CIPs/blob/master/CIP-0100/README.md#",
+    "CIP108": "https://github.com/cardano-foundation/CIPs/blob/master/CIP-0108/README.md#",
+    "hashAlgorithm": "CIP100:hashAlgorithm",
+    "body": {
+      "@id": "CIP108:body",
+      "@context": {
+        "references": "CIP108:references",
+        "title": "CIP108:title",
+        "abstract": "CIP108:abstract",
+        "motivation": "CIP108:motivation",
+        "rationale": "CIP108:rationale"
+      }
+    }
+  },
+  "hashAlgorithm": "blake2b-256",
+  "body": {
+    "title": "Test Treasury Withdrawal",
+    "abstract": "Testnet lifecycle validation for governance action submission workflow.",
+    "motivation": "Validating the end-to-end process of creating, submitting, and verifying a treasury withdrawal governance action on the Cardano preview testnet.",
+    "rationale": "This is a test proposal to exercise CIP-108 metadata generation, blake2b-256 hashing, governance action creation, transaction building, signing, and submission. No real funds are requested.",
+    "references": []
+  }
+}

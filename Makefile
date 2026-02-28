@@ -13,7 +13,7 @@ else
   NETWORK_FLAG := --testnet-magic 2
 endif
 
-.PHONY: help check-prereqs metadata hash governance-action build-tx sign-tx \
+.PHONY: help check-prereqs generate-test-keys metadata hash governance-action build-tx sign-tx \
         submit-testnet submit-mainnet test-lifecycle report journal-entry clean
 
 help: ## Show all available targets
@@ -22,6 +22,9 @@ help: ## Show all available targets
 
 check-prereqs: ## Run prerequisite checks
 	scripts/check-prereqs.sh
+
+generate-test-keys: ## Generate a fresh wallet for preview testnet
+	scripts/generate-test-keys.sh
 
 metadata: ## Generate proposal metadata
 	scripts/generate-metadata.sh
