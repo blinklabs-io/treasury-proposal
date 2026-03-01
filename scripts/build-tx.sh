@@ -64,6 +64,24 @@ fi
 echo "Using UTxO: ${TX_IN}"
 echo ""
 
+# ── Check for guardrails script ──────────────────────────────────────────────
+
+GUARDRAILS_SCRIPT="${GUARDRAILS_SCRIPT:-${REPO_ROOT}/scripts/guardrails.plutus}"
+PROPOSAL_SCRIPT_FLAGS=()
+
+if [[ -f "$GUARDRAILS_SCRIPT" ]]; then
+    echo "Guardrails script: ${GUARDRAILS_SCRIPT}"
+    PROPOSAL_SCRIPT_FLAGS=(
+        --proposal-script-file "$GUARDRAILS_SCRIPT"
+        --proposal-redeemer-value '{}'
+        --tx-in-collateral "$TX_IN"
+    )
+else
+    echo "No guardrails script found (skipping script witness)"
+fi
+
+echo ""
+
 # ── Build transaction ────────────────────────────────────────────────────────
 
 TX_RAW="${REPO_ROOT}/tx.raw"
@@ -73,6 +91,7 @@ cardano-cli conway transaction build \
     --tx-in "$TX_IN" \
     --change-address "$PAYMENT_ADDRESS" \
     --proposal-file "$ACTION_FILE" \
+    "${PROPOSAL_SCRIPT_FLAGS[@]}" \
     --out-file "$TX_RAW"
 
 echo "Transaction built: ${TX_RAW}"

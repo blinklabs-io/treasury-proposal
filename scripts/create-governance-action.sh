@@ -95,10 +95,33 @@ resolve_path() {
 DEPOSIT_VKEY_PATH=$(resolve_path "$DEPOSIT_RETURN_STAKE_VKEY")
 RECEIVING_VKEY_PATH=$(resolve_path "$RECEIVING_STAKE_VKEY")
 
+# ── Query constitution script hash ────────────────────────────────────────────
+
+# Query commands need --testnet-magic N, not --testnet
+case "${NETWORK:-preview}" in
+    mainnet) QUERY_FLAG=(--mainnet) ;;
+    preprod) QUERY_FLAG=(--testnet-magic 1) ;;
+    *)       QUERY_FLAG=(--testnet-magic 2) ;;
+esac
+
+echo "Querying on-chain constitution script hash..."
+
+CONSTITUTION_JSON=$(cardano-cli conway query constitution "${QUERY_FLAG[@]}" --out-file /dev/stdout)
+CONSTITUTION_SCRIPT_HASH=$(echo "$CONSTITUTION_JSON" | jq -r '.script // empty')
+
+CONSTITUTION_FLAG=()
+if [[ -n "$CONSTITUTION_SCRIPT_HASH" ]]; then
+    CONSTITUTION_FLAG=(--constitution-script-hash "$CONSTITUTION_SCRIPT_HASH")
+    echo "Constitution script hash: ${CONSTITUTION_SCRIPT_HASH}"
+else
+    echo "No constitution script hash found on-chain (skipping)"
+fi
+
 # ── Create governance action ────────────────────────────────────────────────
 
 OUTPUT_FILE="${REPO_ROOT}/treasury-withdrawal.action"
 
+echo ""
 echo "=== Create Treasury Withdrawal Governance Action ==="
 echo ""
 echo "Network:     ${NETWORK_FLAG[*]}"
@@ -116,6 +139,7 @@ cardano-cli conway governance action create-treasury-withdrawal \
     --anchor-data-hash "$ANCHOR_DATA_HASH" \
     --funds-receiving-stake-verification-key-file "$RECEIVING_VKEY_PATH" \
     --transfer "$TRANSFER_AMOUNT" \
+    "${CONSTITUTION_FLAG[@]}" \
     --out-file "$OUTPUT_FILE"
 
 echo "Governance action created: ${OUTPUT_FILE}"

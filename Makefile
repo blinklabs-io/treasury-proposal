@@ -4,8 +4,8 @@
 NETWORK       ?= preview
 METADATA_FILE ?= metadata/proposal-metadata.json
 
-.PHONY: help check-prereqs generate-test-keys hash governance-action build-tx sign-tx \
-        submit-testnet submit-mainnet test-lifecycle report journal-entry clean
+.PHONY: help check-prereqs generate-test-keys register-stake fetch-guardrails hash governance-action \
+        build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report journal-entry clean
 
 help: ## Show all available targets
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
@@ -16,6 +16,12 @@ check-prereqs: ## Run prerequisite checks
 
 generate-test-keys: ## Generate a fresh wallet for preview testnet
 	NETWORK=$(NETWORK) scripts/generate-test-keys.sh
+
+register-stake: ## Register the stake key on-chain (required once)
+	NETWORK=$(NETWORK) scripts/register-stake.sh
+
+fetch-guardrails: ## Fetch the on-chain guardrails script
+	NETWORK=$(NETWORK) scripts/fetch-guardrails.sh
 
 hash: ## Hash the proposal metadata JSON
 	scripts/hash-metadata.sh $(METADATA_FILE)
@@ -47,4 +53,4 @@ journal-entry: ## Create a new journal entry
 	scripts/journal-entry.sh
 
 clean: ## Remove generated transaction and action files
-	rm -f *.action *.raw *.signed tx.*
+	rm -f *.action *.raw *.signed tx.* stake-reg.* keys/stake-reg.cert scripts/guardrails.plutus

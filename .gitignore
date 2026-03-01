@@ -11,6 +11,9 @@ config.env
 *.raw
 *.signed
 tx.*
+stake-reg.*
+scripts/guardrails.plutus
+metadata/metadata-hash.txt
 
 # OS
 .DS_Store
