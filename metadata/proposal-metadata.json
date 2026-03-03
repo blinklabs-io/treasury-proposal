@@ -13,9 +13,34 @@
         "motivation": "CIP108:motivation",
         "rationale": "CIP108:rationale"
       }
+    },
+    "authors": {
+      "@id": "CIP100:authors",
+      "@container": "@set",
+      "@context": {
+        "name": "http://xmlns.com/foaf/0.1/name",
+        "witness": {
+          "@id": "CIP100:witness",
+          "@context": {
+            "witnessAlgorithm": "CIP100:witnessAlgorithm",
+            "publicKey": "CIP100:publicKey",
+            "signature": "CIP100:signature"
+          }
+        }
+      }
     }
   },
   "hashAlgorithm": "blake2b-256",
+  "authors": [
+    {
+      "name": "Chris Gianelloni",
+      "witness": {
+        "witnessAlgorithm": "ed25519",
+        "publicKey": "",
+        "signature": ""
+      }
+    }
+  ],
   "body": {
     "title": "Dingo: a Production-Grade Block Producer in Go by Blink Labs",
     "abstract": "Blink Labs is requesting 6,900,000 ADA from the Cardano Treasury to fund twelve months of full-time engineering on Dingo, our Go Cardano node. Dingo is a work in progress, and that's the whole point of this proposal. But it's a substantial one: 1,290+ non-dependency PRs merged in the past year, Plutus V1/V2/V3 at 100% conformance, 314 passing conformance tests, VRF/KES crypto, ChainSync, mempool, and governance transaction support. This funding gets Dingo the rest of the way to mainnet block-production readiness: Ouroboros Praos consensus completion, Dijkstra hard fork support, CIP-0164 Linear Leios built alongside IO Engineering, a proper security audit, and the operational hardening that makes a node reliable at scale.",

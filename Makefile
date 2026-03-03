@@ -4,8 +4,8 @@
 NETWORK       ?= preview
 METADATA_FILE ?= metadata/proposal-metadata.json
 
-.PHONY: help check-prereqs generate-test-keys register-stake fetch-guardrails hash governance-action \
-        build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report journal-entry clean
+.PHONY: help check-prereqs generate-test-keys register-stake fetch-guardrails sign-metadata upload-ipfs hash \
+        governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report journal-entry clean
 
 help: ## Show all available targets
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
@@ -22,6 +22,12 @@ register-stake: ## Register the stake key on-chain (required once)
 
 fetch-guardrails: ## Fetch the on-chain guardrails script
 	NETWORK=$(NETWORK) scripts/fetch-guardrails.sh
+
+sign-metadata: ## Sign metadata with ed25519 (CIP-100 author witness)
+	scripts/sign-metadata.sh $(METADATA_FILE)
+
+upload-ipfs: ## Upload metadata to IPFS via Pinata
+	scripts/upload-ipfs.sh $(METADATA_FILE)
 
 hash: ## Hash the proposal metadata JSON
 	scripts/hash-metadata.sh $(METADATA_FILE)

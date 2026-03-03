@@ -13,9 +13,34 @@
         "motivation": "CIP108:motivation",
         "rationale": "CIP108:rationale"
       }
+    },
+    "authors": {
+      "@id": "CIP100:authors",
+      "@container": "@set",
+      "@context": {
+        "name": "http://xmlns.com/foaf/0.1/name",
+        "witness": {
+          "@id": "CIP100:witness",
+          "@context": {
+            "witnessAlgorithm": "CIP100:witnessAlgorithm",
+            "publicKey": "CIP100:publicKey",
+            "signature": "CIP100:signature"
+          }
+        }
+      }
     }
   },
   "hashAlgorithm": "blake2b-256",
+  "authors": [
+    {
+      "name": "Chris Gianelloni",
+      "witness": {
+        "witnessAlgorithm": "ed25519",
+        "publicKey": "",
+        "signature": ""
+      }
+    }
+  ],
   "body": {
     "title": "Test Treasury Withdrawal",
     "abstract": "Testnet lifecycle validation for governance action submission workflow.",

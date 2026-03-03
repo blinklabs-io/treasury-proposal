@@ -5,6 +5,8 @@ keys/
 
 # Configuration with secrets
 config.env
+config.env.*
+!config.env.example
 
 # Build artifacts
 *.action
