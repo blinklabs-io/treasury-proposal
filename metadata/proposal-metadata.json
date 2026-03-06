@@ -36,8 +36,8 @@
       "name": "Chris Gianelloni",
       "witness": {
         "witnessAlgorithm": "ed25519",
-        "publicKey": "",
-        "signature": ""
+        "publicKey": "674e6d0677c0c5184eb1ce097ea722a73ba4c40bed024f6ad9df7fbeb41263f7",
+        "signature": "550309d8c060adc7f17328ea88bf0b037d9ff26e7f2dc46926afb800890d51cb950f783eeb08707c9e9016c9fc85abcf8418a7c68a34c82c9c1138cea3bab90d"
       }
     }
   ],
