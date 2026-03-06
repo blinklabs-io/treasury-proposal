@@ -81,6 +81,26 @@
         "@type": "Other",
         "label": "PRAGMA Maintainer Committee Framework",
         "uri": "ipfs://bafkreiabxyva5lfm6zztg7tnktxvvbbucljrce7hlrp4p6hropqzfaip3y"
+      },
+      {
+        "@type": "Other",
+        "label": "Treasury Contract Script Hash",
+        "uri": "https://cardanoscan.io/scriptHash/5f8a75f7881d630399bd9a8f5758c77b1bb522407d8b1b4e13421f7c"
+      },
+      {
+        "@type": "Other",
+        "label": "Vendor Contract Script Hash",
+        "uri": "https://cardanoscan.io/scriptHash/184620d80ff5bd4617ba9e91950c14af8bbc237a0ed7b679695479cd"
+      },
+      {
+        "@type": "Other",
+        "label": "Registry Token Policy ID",
+        "uri": "https://cardanoscan.io/tokenPolicy/d161c89f1123fac8043df44aeec0ca36b2a76e84df47592fe92980ac"
+      },
+      {
+        "@type": "Other",
+        "label": "Treasury Contract Address",
+        "uri": "https://cardanoscan.io/address/addr1w8gkrjylzy3l4jqy8h6y4mkqegmt9fmwsn05wkf0ay5cptquyv93g"
       }
     ]
   }
