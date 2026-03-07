@@ -4,7 +4,7 @@
 NETWORK       ?= preview
 METADATA_FILE ?= metadata/proposal-metadata.json
 
-.PHONY: help check-prereqs generate-test-keys register-stake fetch-guardrails sign-metadata upload-ipfs hash \
+.PHONY: help check-prereqs generate-test-keys register-stake delegate-always-abstain fetch-guardrails sign-metadata upload-ipfs hash \
         governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report journal-entry clean
 
 help: ## Show all available targets
@@ -19,6 +19,9 @@ generate-test-keys: ## Generate a fresh wallet for preview testnet
 
 register-stake: ## Register the stake key on-chain (required once)
 	NETWORK=$(NETWORK) scripts/register-stake.sh
+
+delegate-always-abstain: ## Delegate treasury stake credential to always_abstain DRep
+	NETWORK=$(NETWORK) scripts/delegate-always-abstain.sh
 
 fetch-guardrails: ## Fetch the on-chain guardrails script
 	NETWORK=$(NETWORK) scripts/fetch-guardrails.sh
@@ -59,4 +62,4 @@ journal-entry: ## Create a new journal entry
 	scripts/journal-entry.sh
 
 clean: ## Remove generated transaction and action files
-	rm -f *.action *.raw *.signed tx.* stake-reg.* keys/stake-reg.cert scripts/guardrails.plutus
+	rm -f *.action *.raw *.signed tx.* stake-reg.* vote-deleg.* keys/stake-reg.cert keys/treasury-vote-deleg.cert scripts/guardrails.plutus
