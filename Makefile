@@ -4,7 +4,7 @@
 NETWORK       ?= preview
 METADATA_FILE ?= metadata/proposal-metadata.json
 
-.PHONY: help check-prereqs generate-test-keys register-stake delegate-always-abstain fetch-guardrails sign-metadata upload-ipfs hash \
+.PHONY: help check-prereqs generate-test-keys register-stake delegate-always-abstain fetch-guardrails metadata sign-metadata upload-ipfs hash \
         governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report journal-entry clean
 
 help: ## Show all available targets
@@ -25,6 +25,9 @@ delegate-always-abstain: ## Delegate treasury stake credential to always_abstain
 
 fetch-guardrails: ## Fetch the on-chain guardrails script
 	NETWORK=$(NETWORK) scripts/fetch-guardrails.sh
+
+metadata: ## Generate proposal metadata
+	scripts/generate-metadata.sh
 
 sign-metadata: ## Sign metadata with ed25519 (CIP-100 author witness)
 	scripts/sign-metadata.sh $(METADATA_FILE)
