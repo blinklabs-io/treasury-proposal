@@ -25,6 +25,8 @@ make submit-testnet    # Full testnet submission workflow
 make test-lifecycle    # Automated testnet lifecycle test
 ```
 
+Every workflow in this repo is driven by a `make` target. Run `make help` for the full list. Network selection is via `NETWORK=preview|preprod|mainnet` (default: `preview`).
+
 ## Repository Structure
 
 ```
@@ -63,14 +65,39 @@ make sign-tx NETWORK=preview
 make submit-testnet
 ```
 
-## Reporting
-
-Monthly lightweight updates and quarterly detailed reports are generated via:
+## Mainnet Submission
 
 ```bash
-make report              # Monthly report
-scripts/generate-report.sh --quarterly  # Quarterly report with financials
+make metadata
+make upload-ipfs              # Pin metadata to IPFS for immutability
+make governance-action NETWORK=mainnet
+make build-tx NETWORK=mainnet
+make sign-tx NETWORK=mainnet
+make submit-mainnet           # Prompts for confirmation
 ```
+
+Requires a 100,000 ADA governance action deposit (refunded on ratification or rejection).
+
+## Reporting
+
+Monthly lightweight updates and quarterly detailed reports are generated from `docs/reports/TEMPLATE.md`:
+
+```bash
+make report              # Monthly report -> docs/reports/YYYY-MM-report.md
+make report-quarterly    # Quarterly report with financials -> docs/reports/YYYY-QN-report.md
+```
+
+Monthly reports omit the Financial Summary section; quarterly reports include it. If `$EDITOR` is set, the generated report opens for editing.
+
+## Transparency Journal
+
+Every on-chain transaction against the treasury and vendor contracts is recorded in [`journal/`](journal/):
+
+```bash
+make journal-entry       # Interactive prompt for tx hash, action, amount, signers, justification
+```
+
+See [journal/README.md](journal/README.md) for the entry format and required fields. Entries follow the [SundaeSwap metadata standard](https://github.com/SundaeSwap-finance/treasury-contracts) so anyone can verify them against on-chain data.
 
 ## License
 

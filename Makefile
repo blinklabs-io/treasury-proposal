@@ -5,7 +5,7 @@ NETWORK       ?= preview
 METADATA_FILE ?= metadata/proposal-metadata.json
 
 .PHONY: help check-prereqs generate-test-keys register-stake delegate-always-abstain fetch-guardrails metadata sign-metadata upload-ipfs hash \
-        governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report journal-entry clean
+        governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report report-quarterly journal-entry clean
 
 help: ## Show all available targets
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
@@ -58,8 +58,11 @@ submit-mainnet: sign-tx ## Submit transaction to mainnet (with confirmation)
 test-lifecycle: ## Run the full test lifecycle
 	NETWORK=$(NETWORK) METADATA_FILE=$(METADATA_FILE) scripts/test-lifecycle.sh
 
-report: ## Generate a status report
+report: ## Generate a monthly status report
 	scripts/generate-report.sh
+
+report-quarterly: ## Generate a quarterly status report (includes financials)
+	scripts/generate-report.sh --quarterly
 
 journal-entry: ## Create a new journal entry
 	scripts/journal-entry.sh
