@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # submit-tx.sh - Submit a signed transaction to the Cardano network.
-# Usage: NETWORK=preview scripts/submit-tx.sh [--confirm]
+# Usage: NETWORK=preview scripts/submit-tx.sh [tx-file] [--confirm]
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -18,10 +18,28 @@ fi
 # ── Parse arguments ──────────────────────────────────────────────────────────
 
 CONFIRM=false
+TX_SIGNED_ARG="${TX_SIGNED_FILE:-}"
 for arg in "$@"; do
-    if [[ "$arg" == "--confirm" ]]; then
-        CONFIRM=true
-    fi
+    case "$arg" in
+        --confirm)
+            CONFIRM=true
+            ;;
+        -h|--help)
+            echo "Usage: NETWORK=preview scripts/submit-tx.sh [tx-file] [--confirm]"
+            exit 0
+            ;;
+        --*)
+            echo "Error: unknown option: $arg" >&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$TX_SIGNED_ARG" ]]; then
+                echo "Error: multiple transaction files specified." >&2
+                exit 1
+            fi
+            TX_SIGNED_ARG="$arg"
+            ;;
+    esac
 done
 
 # ── Network flag (submit uses --testnet-magic N) ─────────────────────────────
@@ -34,10 +52,18 @@ esac
 
 # ── Validate prerequisites ──────────────────────────────────────────────────
 
-TX_SIGNED="${REPO_ROOT}/tx.signed"
+TX_SIGNED="${TX_SIGNED_ARG:-${REPO_ROOT}/tx.signed}"
+if [[ "$TX_SIGNED" != /* ]]; then
+    if [[ -f "$TX_SIGNED" ]]; then
+        TX_SIGNED="$(pwd)/$TX_SIGNED"
+    else
+        TX_SIGNED="${REPO_ROOT}/$TX_SIGNED"
+    fi
+fi
+
 if [[ ! -f "$TX_SIGNED" ]]; then
     echo "Error: Signed transaction not found: ${TX_SIGNED}" >&2
-    echo "Run 'make sign-tx' first." >&2
+    echo "Run 'make sign-tx' first, or pass the signed transaction file to submit." >&2
     exit 1
 fi
 
