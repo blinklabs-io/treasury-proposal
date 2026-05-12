@@ -5,6 +5,10 @@ set -euo pipefail
 # Usage:
 #   scripts/generate-report.sh              # Monthly report
 #   scripts/generate-report.sh --quarterly  # Quarterly report (includes financials)
+#
+# Environment overrides:
+#   MONTH   Two-digit month (01-12). Defaults to the current month.
+#   YEAR    Four-digit year. Defaults to the current year.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TEMPLATE="${REPO_ROOT}/docs/reports/TEMPLATE.md"
@@ -40,9 +44,26 @@ fi
 
 # ── Compute dates and filename ───────────────────────────────────────────────
 
-YEAR="$(date +%Y)"
-MONTH="$(date +%m)"
-MONTH_NAME="$(date +%B)"
+YEAR="${YEAR:-$(date +%Y)}"
+MONTH="${MONTH:-$(date +%m)}"
+
+# Normalize MONTH to two digits and validate
+if [[ ! "$MONTH" =~ ^[0-9]{1,2}$ ]]; then
+    echo "Error: MONTH must be a number 1-12 (got: ${MONTH})" >&2
+    exit 1
+fi
+MONTH="$(printf '%02d' "$((10#$MONTH))")"
+if (( 10#$MONTH < 1 || 10#$MONTH > 12 )); then
+    echo "Error: MONTH must be 1-12 (got: ${MONTH})" >&2
+    exit 1
+fi
+
+if [[ ! "$YEAR" =~ ^[0-9]{4}$ ]]; then
+    echo "Error: YEAR must be a 4-digit year (got: ${YEAR})" >&2
+    exit 1
+fi
+
+MONTH_NAME="$(date -d "${YEAR}-${MONTH}-01" +%B)"
 
 if [[ "$QUARTERLY" == true ]]; then
     # Determine quarter from current month
