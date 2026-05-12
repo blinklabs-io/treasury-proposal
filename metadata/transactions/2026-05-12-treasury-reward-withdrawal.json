@@ -1,0 +1,29 @@
+{
+  "1694": {
+    "@context": [
+      "https://raw.githubusercontent.com/SundaeSwap-finance/treasury-co",
+      "ntracts/refs/heads/main/offchain/src/metadata/context.jsonld"
+    ],
+    "hashAlgorithm": "blake2b-256",
+    "txAuthor": "058a5ab0c66647dcce82d7244f80bfea41ba76c7c9ccaf86a41b00fe",
+    "instance": "d161c89f1123fac8043df44aeec0ca36b2a76e84df47592fe92980ac",
+    "body": {
+      "event": "initialize",
+      "reason": [
+        "Move enacted treasury withdrawal funds from the treasury contrac",
+        "t reward account into the treasury script UTxO before disburseme",
+        "nt."
+      ],
+      "outputs": {
+        "0": {
+          "identifier": "Dingo",
+          "label": "Blink Labs Dingo Treasury 2026"
+        }
+      }
+    },
+    "comment": [
+      "Prepare treasury reward withdrawal for Blink Labs Dingo 2026 dev",
+      "elopment."
+    ]
+  }
+}
