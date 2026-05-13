@@ -15,5 +15,6 @@
 - Moves `6900000000000` lovelace from treasury reward account `stake1790c5a0h3qwkxquehkdg746ccaa3hdfzgp7ckx6wzdpp7lq6ysdg0` into treasury script address `addr1x90c5a0h3qwkxquehkdg746ccaa3hdfzgp7ckx6wzdpp7lzl3f6l0zqavvpen0v63at433mmrw6jysra3vd5uy6zra7qgffay3`.
 - Uses treasury reference script `c133b8687c8550a8e7224421e45a7a67bc0941c85b8138f0f9e9498cce8fca08#0`.
 - Uses registry reference input `576feff7b2f634ce2320be715f661a23944ed1157844121fbc5515c4feda155e#0`.
-- Metadata file: `/home/wolf31o2/treasury-proposal/metadata/transactions/2026-05-12-treasury-reward-withdrawal.json`.
-- Verify this transaction id after submission before committing the journal entry.
+- Metadata file: `metadata/transactions/2026-05-12-treasury-reward-withdrawal.json`.
+
+https://cexplorer.io/tx/89f62690bb04c942d4236d143c3715be7e6a3f0754b3c571c6ea78911067e2d6
