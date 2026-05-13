@@ -1,0 +1,21 @@
+{
+  "1694": {
+    "@context": [
+      "https://raw.githubusercontent.com/SundaeSwap-finance/treasury-co",
+      "ntracts/refs/heads/main/offchain/src/metadata/context.jsonld"
+    ],
+    "hashAlgorithm": "blake2b-256",
+    "txAuthor": "058a5ab0c66647dcce82d7244f80bfea41ba76c7c9ccaf86a41b00fe",
+    "instance": "d161c89f1123fac8043df44aeec0ca36b2a76e84df47592fe92980ac",
+    "body": {
+      "event": "disburse",
+      "label": "Kraken OTC trade",
+      "description": "Disburse 5,630,000 ADA to Kraken for OTC trade.",
+      "justification": "Move treasury ADA to Kraken for OTC execution.",
+      "destination": {
+        "label": "Kraken OTC address"
+      }
+    },
+    "comment": "Prepare Kraken OTC disbursement for Blink Labs treasury funds."
+  }
+}
