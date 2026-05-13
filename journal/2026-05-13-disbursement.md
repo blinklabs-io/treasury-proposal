@@ -36,3 +36,5 @@ Pi attests that his signature confirms:
 - the collateral input doesn't belong to the key I am signing with, and instead come from the wallet used to sign for fees
 - it already has a signature attached from the other key, pre-communicated to me as yours
 - it invokes the treasury contract as a spending validator
+
+An OTC trade for 5630001 ADA at 0.2720 USDC was executed for a total of 1531360.272 USDC. [image](kraken-otc-usdc.png)
