@@ -1,14 +1,10 @@
 #!/usr/bin/env bun
 
-import {
-  Address,
-  AssetId,
-  Ed25519KeyHashHex,
-  TransactionId,
-  TransactionInput,
-} from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/core";
 import * as Data from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/data";
-import { makeValue } from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/sdk";
+import {
+  Core,
+  makeValue,
+} from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/sdk";
 import { select } from "../contracts/treasury-contracts/offchain/node_modules/@inquirer/prompts";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -114,7 +110,7 @@ async function resolveTxIn(
     throw new Error(`Invalid tx-in ${txIn}; expected txId#index`);
   }
   const [resolved] = await blaze.provider.resolveUnspentOutputs([
-    new TransactionInput(TransactionId(txId), BigInt(index)),
+    new Core.TransactionInput(Core.TransactionId(txId), BigInt(index)),
   ]);
   if (!resolved) {
     throw new Error(`Could not resolve ${txIn}`);
@@ -245,13 +241,13 @@ async function main() {
   const destinations = [];
   if (usdcx > 0n) {
     destinations.push({
-      address: Address.fromBech32(USDCX_DESTINATION),
+      address: Core.Address.fromBech32(USDCX_DESTINATION),
       amount: makeValue(0n, [USDCX_ASSET_ID, usdcx]),
     });
   }
   if (lovelace > 0n) {
     destinations.push({
-      address: Address.fromBech32(ADA_DESTINATION),
+      address: Core.Address.fromBech32(ADA_DESTINATION),
       amount: makeValue(lovelace),
     });
   }
@@ -262,7 +258,7 @@ async function main() {
   console.log(`ADA destination:     ${ADA_DESTINATION}`);
 
   const signers = await getSigners(toPermission(datum.vendor));
-  signers.add(Ed25519KeyHashHex(TX_AUTHOR_HASH));
+  signers.add(TX_AUTHOR_HASH as never);
 
   const txMetadata = {
     "@context":

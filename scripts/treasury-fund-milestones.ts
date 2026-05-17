@@ -1,16 +1,11 @@
 #!/usr/bin/env bun
 
-import {
-  AssetId,
-  AuxiliaryData,
-  Ed25519KeyHashHex,
-  Slot,
-  TransactionId,
-  TransactionInput,
-} from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/core";
 import * as Data from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/data";
-import { makeValue } from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/sdk";
-import * as Tx from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/tx";
+import {
+  Core,
+  makeValue,
+  Value as SdkValue,
+} from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/sdk";
 import { select } from "../contracts/treasury-contracts/offchain/node_modules/@inquirer/prompts";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -213,7 +208,7 @@ function scheduleValue(milestone: Milestone) {
 
 function valueSummary(value: ReturnType<typeof makeValue>): string {
   const coin = value.coin();
-  const usdcx = value.multiasset()?.get(AssetId(USDCX_ASSET_ID)) ?? 0n;
+  const usdcx = value.multiasset()?.get(Core.AssetId(USDCX_ASSET_ID)) ?? 0n;
   return `${Number(coin) / 1_000_000} ADA, ${Number(usdcx) / 1_000_000} USDCx`;
 }
 
@@ -236,7 +231,7 @@ async function resolveTxIns(
     if (!txId || index === undefined) {
       throw new Error(`Invalid tx-in ${txIn}; expected txId#index`);
     }
-    return new TransactionInput(TransactionId(txId), BigInt(index));
+    return new Core.TransactionInput(Core.TransactionId(txId), BigInt(index));
   });
   return await blaze.provider.resolveUnspentOutputs(inputs);
 }
@@ -261,7 +256,9 @@ async function selectTreasuryInputs(
   const byUsdcx = utxos
     .map((utxo, index) => ({
       index,
-      qty: utxo.output().amount().multiasset()?.get(AssetId(USDCX_ASSET_ID)) ?? 0n,
+      qty:
+        utxo.output().amount().multiasset()?.get(Core.AssetId(USDCX_ASSET_ID)) ??
+        0n,
     }))
     .filter((x) => x.qty > 0n)
     .sort((a, b) => Number(b.qty - a.qty));
@@ -286,7 +283,11 @@ async function selectTreasuryInputs(
     selected.add(candidate.index);
     haveLovelace += candidate.qty;
     haveUsdcx +=
-      utxos[candidate.index].output().amount().multiasset()?.get(AssetId(USDCX_ASSET_ID)) ?? 0n;
+      utxos[candidate.index]
+        .output()
+        .amount()
+        .multiasset()
+        ?.get(Core.AssetId(USDCX_ASSET_ID)) ?? 0n;
   }
 
   if (haveLovelace < lovelace || haveUsdcx < usdcx) {
@@ -336,7 +337,7 @@ async function main() {
     amount: scheduleValue(milestone),
   }));
   const totalPayout = schedule.reduce(
-    (acc, item) => Tx.Value.merge(acc, item.amount),
+    (acc, item) => SdkValue.merge(acc, item.amount),
     makeValue(0n),
   );
 
@@ -354,7 +355,7 @@ async function main() {
     metadata.body.permissions,
   );
   const signers = await getSigners(fundPermission, vendorPermission);
-  signers.add(Ed25519KeyHashHex(TX_AUTHOR_HASH));
+  signers.add(TX_AUTHOR_HASH as never);
 
   const txMetadata = {
     "@context":
@@ -387,18 +388,20 @@ async function main() {
   };
 
   const registryInput = await blaze.provider.getUnspentOutputByNFT(
-    AssetId(configs.treasury.registry_token + REGISTRY_ASSET_NAME),
+    Core.AssetId(configs.treasury.registry_token + REGISTRY_ASSET_NAME),
   );
 
   const tx = blaze.newTransaction().addReferenceInput(registryInput);
   const now = Date.now();
   const maxHorizonMs =
-    blaze.provider.network === 0 ? 6 * 60 * 60 * 1000 : 36 * 60 * 60 * 1000;
+    blaze.provider.network === Core.NetworkId.Testnet
+      ? 6 * 60 * 60 * 1000
+      : 36 * 60 * 60 * 1000;
   const validUntilUnix = Math.min(
     Number(configs.treasury.expiration),
     now + maxHorizonMs,
   );
-  tx.setValidUntil(Slot(blaze.provider.unixToSlot(validUntilUnix) - 30));
+  tx.setValidUntil(Core.Slot(blaze.provider.unixToSlot(validUntilUnix) - 30));
 
   if (!scripts.treasuryScript.scriptRef) {
     scripts.treasuryScript.scriptRef = await blaze.provider.resolveScriptRef(
@@ -411,7 +414,7 @@ async function main() {
     tx.provideScript(scripts.treasuryScript.script.Script);
   }
 
-  const auxData = new AuxiliaryData();
+  const auxData = new Core.AuxiliaryData();
   auxData.setMetadata(toTxMetadata(txMetadata));
   tx.setAuxiliaryData(auxData);
 
@@ -444,11 +447,11 @@ async function main() {
   );
 
   const inputValue = treasuryInputs.reduce(
-    (acc, input) => Tx.Value.merge(acc, input.output().amount()),
+    (acc, input) => SdkValue.merge(acc, input.output().amount()),
     makeValue(0n),
   );
-  const remainder = Tx.Value.merge(inputValue, Tx.Value.negate(totalPayout));
-  if (!Tx.Value.empty(remainder)) {
+  const remainder = SdkValue.merge(inputValue, SdkValue.negate(totalPayout));
+  if (!SdkValue.empty(remainder)) {
     tx.lockAssets(
       scripts.treasuryScript.scriptAddress,
       remainder,
