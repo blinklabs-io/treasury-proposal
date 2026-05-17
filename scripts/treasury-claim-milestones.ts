@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
 
-import * as Data from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/data";
+import * as Data from "@blaze-cardano/data";
 import {
   Core,
   makeValue,
-} from "../contracts/treasury-contracts/offchain/node_modules/@blaze-cardano/sdk";
-import { select } from "../contracts/treasury-contracts/offchain/node_modules/@inquirer/prompts";
+} from "@blaze-cardano/sdk";
+import { select } from "@inquirer/prompts";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

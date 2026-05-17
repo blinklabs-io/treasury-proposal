@@ -9,6 +9,7 @@ config.env.*
 !config.env.example
 
 # Build artifacts
+node_modules/
 *.action
 *.raw
 *.signed

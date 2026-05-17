@@ -1,0 +1,16 @@
+{
+  "name": "blink-treasury-proposal-ops",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@blaze-cardano/core": "0.6.4",
+    "@blaze-cardano/data": "0.6.0",
+    "@blaze-cardano/query": "^0.5.0",
+    "@blaze-cardano/sdk": "^0.2.33",
+    "@blaze-cardano/tx": "0.12.3",
+    "@blaze-cardano/uplc": "^0.4.1",
+    "@inquirer/prompts": "^7.5.3",
+    "clipboardy": "^4.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
