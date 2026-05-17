@@ -17,6 +17,10 @@ does not use Bun or Blaze. It creates one vendor UTxO containing the full
 schedule. Keeping the schedule in one vendor UTxO matters because `vendor.ak`
 allows only one vendor input in a withdraw transaction.
 
+Generated files are written under `tmp/<date>-milestone-fund` by default and
+are passed to `cardano-cli` as repo-relative paths. This also works when
+`cardano-cli` is a container wrapper that cannot see host absolute paths.
+
 Required environment:
 
 ```bash

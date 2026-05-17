@@ -5,6 +5,7 @@ set -euo pipefail
 # cardano-cli only. This intentionally avoids the Bun/Blaze runtime path.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT"
 
 usage() {
     cat <<'EOF'
@@ -197,7 +198,7 @@ TREASURY_SCRIPT_REF="${TREASURY_SCRIPT_REF:-c133b8687c8550a8e7224421e45a7a67bc09
 REGISTRY_TX_IN="${REGISTRY_TX_IN:-576feff7b2f634ce2320be715f661a23944ed1157844121fbc5515c4feda155e#0}"
 
 RUN_LABEL="${RUN_LABEL:-$(date -u +%Y-%m-%d-milestone-fund)}"
-OUT_DIR="${OUT_DIR:-${REPO_ROOT}/tmp/${RUN_LABEL}}"
+OUT_DIR="${OUT_DIR:-tmp/${RUN_LABEL}}"
 mkdir -p "$OUT_DIR"
 
 TREASURY_SCRIPT_FILE="${OUT_DIR}/treasury.plutus"
@@ -212,15 +213,32 @@ TX_BODY_FILE="${TX_BODY_FILE:-${OUT_DIR}/tx-milestone-fund.raw}"
 WITNESS_FILE="${WITNESS_FILE:-${OUT_DIR}/tx-milestone-fund.witness}"
 PARTIAL_SIGNED_FILE="${PARTIAL_SIGNED_FILE:-${OUT_DIR}/tx-milestone-fund.partial.signed}"
 
-jq -r --arg instance "$INSTANCE_ID" '
-  .[$instance].scripts.treasuryScript.script
-  | {type:"PlutusScriptV3", description:"", cborHex:.}
-' "$METADATA_FILE" > "$TREASURY_SCRIPT_FILE"
+write_plutus_script() {
+    local script_name="$1"
+    local out_file="$2"
+    local cbor
 
-jq -r --arg instance "$INSTANCE_ID" '
-  .[$instance].scripts.vendorScript.script
-  | {type:"PlutusScriptV3", description:"", cborHex:.}
-' "$METADATA_FILE" > "$VENDOR_SCRIPT_FILE"
+    cbor="$(
+        jq -er --arg instance "$INSTANCE_ID" --arg script "$script_name" '
+          .[$instance].scripts[$script].script
+        ' "$METADATA_FILE"
+    )" || {
+        echo "Error: could not read ${script_name} from ${METADATA_FILE} for instance ${INSTANCE_ID}." >&2
+        exit 1
+    }
+
+    jq -n --arg cbor "$cbor" '
+      {type:"PlutusScriptV3", description:"", cborHex:$cbor}
+    ' > "$out_file"
+
+    if [[ ! -s "$out_file" ]]; then
+        echo "Error: failed to write Plutus script file: ${out_file}" >&2
+        exit 1
+    fi
+}
+
+write_plutus_script treasuryScript "$TREASURY_SCRIPT_FILE"
+write_plutus_script vendorScript "$VENDOR_SCRIPT_FILE"
 
 TREASURY_SCRIPT_ADDRESS="$(
     cardano-cli address build \
