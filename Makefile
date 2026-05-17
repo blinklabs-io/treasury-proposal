@@ -69,7 +69,7 @@ journal-entry: ## Create a new journal entry
 	scripts/journal-entry.sh
 
 fund-milestones: ## Build mixed ADA/USDCx vendor milestone funding transaction
-	bun scripts/treasury-fund-milestones.ts
+	NETWORK=$(NETWORK) scripts/build-milestone-fund.sh
 
 claim-milestones: ## Build claim transaction for matured vendor milestones
 	bun scripts/treasury-claim-milestones.ts

@@ -5,22 +5,35 @@ This repository keeps custom milestone operations outside the
 
 ## Funding
 
-Install the repo-level operation dependencies once:
-
-```bash
-bun install
-```
-
 Build one mixed-asset vendor funding transaction:
 
 ```bash
-make fund-milestones
+NETWORK=mainnet make fund-milestones
 ```
 
-The script uses `metadata/offchain-metadata.json` for the saved mainnet
-treasury instance and creates one vendor UTxO containing the full schedule.
-Keeping the schedule in one vendor UTxO matters because `vendor.ak` allows
-only one vendor input in a withdraw transaction.
+The funding target uses `cardano-cli`, `jq`, and
+`metadata/offchain-metadata.json` for the saved mainnet treasury instance. It
+does not use Bun or Blaze. It creates one vendor UTxO containing the full
+schedule. Keeping the schedule in one vendor UTxO matters because `vendor.ak`
+allows only one vendor input in a withdraw transaction.
+
+Required environment:
+
+```bash
+export NETWORK=mainnet
+export CARDANO_NODE_SOCKET_PATH=/path/to/node.socket
+export PAYMENT_ADDRESS=addr...
+export PAYMENT_SKEY=/path/to/payment.skey   # optional; writes your witness
+```
+
+If the fee payer key is also the Blink Labs signer key, point both identities
+at the same key hash and signing key:
+
+```bash
+export PAYMENT_SKEY=/path/to/blink-or-chris.skey
+export BLINK_LABS_KEYHASH=058a5ab0c66647dcce82d7244f80bfea41ba76c7c9ccaf86a41b00fe
+export TX_AUTHOR_HASH=$BLINK_LABS_KEYHASH
+```
 
 All milestone dates are encoded as UTC timestamps.
 
@@ -40,6 +53,11 @@ specific inputs:
 ```bash
 TREASURY_TX_INS='txid0#0 txid1#1' make fund-milestones
 ```
+
+The generated transaction requires the Blink Labs signer plus Lucas and
+Santiago. If `PAYMENT_SKEY` is set, the script writes your witness and a
+partial signed transaction, but the board witnesses still need to be assembled
+before submission.
 
 ## Claims
 
