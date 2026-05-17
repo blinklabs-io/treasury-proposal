@@ -5,7 +5,8 @@ NETWORK       ?= preview
 METADATA_FILE ?= metadata/proposal-metadata.json
 
 .PHONY: help check-prereqs generate-test-keys register-stake delegate-always-abstain fetch-guardrails metadata sign-metadata upload-ipfs hash \
-        governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report report-quarterly journal-entry clean
+        governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report report-quarterly journal-entry \
+        fund-milestones claim-milestones clean
 
 help: ## Show all available targets
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
@@ -66,6 +67,12 @@ report-quarterly: ## Generate a quarterly status report (includes financials)
 
 journal-entry: ## Create a new journal entry
 	scripts/journal-entry.sh
+
+fund-milestones: ## Build mixed ADA/USDCx vendor milestone funding transaction
+	bun scripts/treasury-fund-milestones.ts
+
+claim-milestones: ## Build claim transaction for matured vendor milestones
+	bun scripts/treasury-claim-milestones.ts
 
 clean: ## Remove generated transaction and action files
 	rm -f *.action *.raw *.signed tx.* stake-reg.* vote-deleg.* keys/stake-reg.cert keys/treasury-vote-deleg.cert scripts/guardrails.plutus
