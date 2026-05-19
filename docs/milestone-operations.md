@@ -68,21 +68,26 @@ before submission.
 Build a claim transaction for currently matured payouts:
 
 ```bash
-make claim-milestones
+NETWORK=mainnet CLAIM_MILESTONES=M-0 make claim-milestones
 ```
 
-The claim script spends one vendor UTxO and sends:
+The claim target uses `cardano-cli`, not Bun. It defaults to `M-0`, spends one
+vendor UTxO, and sends:
 
 - USDCx to Blink Labs hot wallet:
   `addr1q8g9808jhwhqjp3ylqgdpzzuur4u53n5zv4ahadskq6djd3lwzwsdphplcdpzla0vnksx0vd2xk70ykyfl3fmuwxr4vqv7tkrw`
 - ADA to Chris Gianelloni personal wallet:
   `addr1qyzc5k4sceny0hxwsttjgnuqhl4yrwnkclyuetux5sdsplh9r9z8yaghysf05atjyv79t73lercjdqnejetxm307m49qsugwpk`
 
-To claim as of a specific time or force a vendor input:
+For USDCx-only claims such as Bootstrap, the required min-ADA for the Blink hot
+wallet output is paid by the fee/change wallet. The vendor contract ADA remains
+locked for later ADA milestones.
+
+To force a specific vendor input:
 
 ```bash
-CLAIM_AT='2026-06-30T00:05:00Z' VENDOR_TX_IN='txid#0' make claim-milestones
+CLAIM_MILESTONES=M-0 VENDOR_TX_IN='txid#0' make claim-milestones
 ```
 
-Both scripts use the same provider and wallet environment as the Sundae
-offchain CLI, for example `BLOCKFROST_KEY` and `WALLET_ADDRESS`.
+The claim transaction requires the Blink Labs vendor signer. If `PAYMENT_SKEY`
+is set, the script writes the witness and a partial signed transaction.

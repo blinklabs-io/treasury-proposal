@@ -72,7 +72,7 @@ fund-milestones: ## Build mixed ADA/USDCx vendor milestone funding transaction
 	NETWORK=$(NETWORK) scripts/build-milestone-fund.sh
 
 claim-milestones: ## Build claim transaction for matured vendor milestones
-	bun scripts/treasury-claim-milestones.ts
+	NETWORK=$(NETWORK) scripts/build-milestone-claim.sh
 
 clean: ## Remove generated transaction and action files
 	rm -f *.action *.raw *.signed tx.* stake-reg.* vote-deleg.* keys/stake-reg.cert keys/treasury-vote-deleg.cert scripts/guardrails.plutus
