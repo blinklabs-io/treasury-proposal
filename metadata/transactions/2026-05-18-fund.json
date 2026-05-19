@@ -1,0 +1,171 @@
+{
+  "1694": {
+    "@context": [
+      "https://raw.githubusercontent.com/SundaeSwap-finance/treasury-co",
+      "ntracts/refs/heads/main/offchain/src/metadata/context.jsonld"
+    ],
+    "hashAlgorithm": "blake2b-256",
+    "txAuthor": "058a5ab0c66647dcce82d7244f80bfea41ba76c7c9ccaf86a41b00fe",
+    "instance": "d161c89f1123fac8043df44aeec0ca36b2a76e84df47592fe92980ac",
+    "body": {
+      "event": "fund",
+      "label": "Blink Labs milestone funding",
+      "description": [
+        "Fund one mixed ADA/USDCx vendor UTxO for Blink Labs treasury mil",
+        "estones."
+      ],
+      "vendor": {
+        "keyHash": "058a5ab0c66647dcce82d7244f80bfea41ba76c7c9ccaf86a41b00fe",
+        "usdcxDestination": [
+          "addr1q8g9808jhwhqjp3ylqgdpzzuur4u53n5zv4ahadskq6djd3lwzwsdphplcd",
+          "pzla0vnksx0vd2xk70ykyfl3fmuwxr4vqv7tkrw"
+        ],
+        "adaDestination": [
+          "addr1qyzc5k4sceny0hxwsttjgnuqhl4yrwnkclyuetux5sdsplh9r9z8yaghysf",
+          "05atjyv79t73lercjdqnejetxm307m49qsugwpk"
+        ]
+      },
+      "asset": {
+        "ticker": "USDCx",
+        "policyId": "1f3aec8bfe7ea4fe14c5f121e2a92e301afe414147860d557cac7e34",
+        "assetName": "5553444378"
+      },
+      "totals": {
+        "usdcxBaseUnits": 1528333333336,
+        "adaLovelace": 370000000000
+      },
+      "milestones": [
+        {
+          "id": "M-0",
+          "description": "Bootstrap",
+          "usdcx_base": 225000000000,
+          "ada_lovelace": 0,
+          "date_utc": "2026-05-18T00:00:00Z",
+          "maturation": 1779062400000,
+          "status": "Active"
+        },
+        {
+          "id": "M-1",
+          "description": "Infra May",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-05-31T00:00:00Z",
+          "maturation": 1780185600000,
+          "status": "Active"
+        },
+        {
+          "id": "M-2",
+          "description": "Q2 Testnet",
+          "usdcx_base": 225000000000,
+          "ada_lovelace": 92500000000,
+          "date_utc": "2026-06-30T00:00:00Z",
+          "maturation": 1782777600000,
+          "status": "Active"
+        },
+        {
+          "id": "M-3",
+          "description": "Infra June",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-06-30T00:00:00Z",
+          "maturation": 1782777600000,
+          "status": "Active"
+        },
+        {
+          "id": "M-4",
+          "description": "Infra July",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-07-31T00:00:00Z",
+          "maturation": 1785456000000,
+          "status": "Active"
+        },
+        {
+          "id": "M-5",
+          "description": "Infra August",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-08-31T00:00:00Z",
+          "maturation": 1788134400000,
+          "status": "Active"
+        },
+        {
+          "id": "M-6",
+          "description": "Q3 Storage",
+          "usdcx_base": 225000000000,
+          "ada_lovelace": 92500000000,
+          "date_utc": "2026-09-30T00:00:00Z",
+          "maturation": 1790726400000,
+          "status": "Active"
+        },
+        {
+          "id": "M-7",
+          "description": "Infra September",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-09-30T00:00:00Z",
+          "maturation": 1790726400000,
+          "status": "Active"
+        },
+        {
+          "id": "M-8",
+          "description": "Infra October",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-10-31T00:00:00Z",
+          "maturation": 1793404800000,
+          "status": "Active"
+        },
+        {
+          "id": "M-9",
+          "description": "Infra November",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-11-30T00:00:00Z",
+          "maturation": 1795996800000,
+          "status": "Active"
+        },
+        {
+          "id": "M-10",
+          "description": "Audit",
+          "usdcx_base": 500000000000,
+          "ada_lovelace": 0,
+          "date_utc": "2026-06-30T00:00:00Z",
+          "maturation": 1782777600000,
+          "status": "Paused"
+        },
+        {
+          "id": "M-11",
+          "description": "Q4 Leios",
+          "usdcx_base": 225000000000,
+          "ada_lovelace": 92500000000,
+          "date_utc": "2026-12-31T00:00:00Z",
+          "maturation": 1798675200000,
+          "status": "Active"
+        },
+        {
+          "id": "M-12",
+          "description": "Infra December",
+          "usdcx_base": 4166666667,
+          "ada_lovelace": 0,
+          "date_utc": "2026-12-31T00:00:00Z",
+          "maturation": 1798675200000,
+          "status": "Active"
+        },
+        {
+          "id": "M-13",
+          "description": "Q1 Mainnet",
+          "usdcx_base": 95000000000,
+          "ada_lovelace": 92500000000,
+          "date_utc": "2027-01-31T00:00:00Z",
+          "maturation": 1801353600000,
+          "status": "Active"
+        }
+      ]
+    },
+    "comment": [
+      "M-10 Audit is funded as matured but Paused; the board can resume",
+      " it after the auditor is engaged."
+    ]
+  }
+}
