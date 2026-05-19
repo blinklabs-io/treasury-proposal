@@ -13,7 +13,7 @@
 ## Notes
 
 This is an incoming transaction to the address created using our script.
-Addre4ss: 0x15d7704288c307a39eac2f3f39cf4bbd3115a8da
+Address: 0x15d7704288c307a39eac2f3f39cf4bbd3115a8da
 
 We sent 1,531,307.861924 USDC and received 1531307.861923 USDCx
 
