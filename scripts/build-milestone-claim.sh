@@ -290,43 +290,21 @@ fi
 
 jq -n '{constructor: 0, fields: []}' > "$REDEEMER_FILE"
 
-jq \
-    --arg vendor "$BLINK_LABS_KEYHASH" \
-    --arg policy "$USDCX_POLICY_ID" \
-    --arg asset "$USDCX_ASSET_NAME" \
-    --argjson ids "$CLAIM_IDS_JSON" '
-  def value_map($lovelace; $policy_id; $asset_name; $asset_amount):
-    {
-      map: [
-        if $lovelace > 0 then
-          {k:{bytes:""}, v:{map:[{k:{bytes:""}, v:{int:$lovelace}}]}}
-        else empty end,
-        if $asset_amount > 0 then
-          {k:{bytes:$policy_id}, v:{map:[{k:{bytes:$asset_name}, v:{int:$asset_amount}}]}}
-        else empty end
-      ]
-    };
-  map(select(.id as $id | ($ids | index($id) | not)))
-  | {
-      constructor: 0,
-      fields: [
-        {constructor: 0, fields: [{bytes: $vendor}]},
-        {
-          list: map({
-            constructor: 0,
-            fields: [
-              {int: .maturation},
-              value_map(.ada_lovelace; $policy; $asset; .usdcx_base),
-              {
-                constructor: (if .status == "Paused" then 1 else 0 end),
-                fields: []
-              }
-            ]
-          })
-        }
-      ]
-    }
-' "$SCHEDULE_FILE" > "$REMAINING_DATUM_FILE"
+# The continuing (remaining) vendor datum is built later, after the vendor UTxO
+# is queried, by filtering the *actual on-chain inline datum* rather than the
+# static schedule. The on-chain datum diverges from the schedule as milestones
+# are claimed (claimed payouts are removed), so the schedule cannot be trusted
+# as the base for the continuing output. Built after the vendor UTxO query.
+
+# Claim "signatures" (maturation + ada + usdcx) used to identify which payouts
+# to remove from the on-chain datum. The triple is unique per milestone.
+CLAIM_SIGS_JSON="$(
+    jq -c --argjson ids "$CLAIM_IDS_JSON" '
+      [ .[]
+        | select(.id as $id | $ids | index($id))
+        | {maturation: .maturation, ada: .ada_lovelace, usdcx: .usdcx_base} ]
+    ' "$SCHEDULE_FILE"
+)"
 
 if [[ ! -s "$METADATA_JSON_FILE" ]]; then
     jq -n \
@@ -423,6 +401,117 @@ if (( VENDOR_INPUT_USDCX < CLAIM_USDCX )); then
 fi
 if (( VENDOR_INPUT_LOVELACE < CLAIM_ADA )); then
     echo "Error: vendor input contains ${VENDOR_INPUT_LOVELACE} lovelace; claim needs ${CLAIM_ADA}." >&2
+    exit 1
+fi
+
+# Build the continuing vendor datum from the ACTUAL on-chain inline datum,
+# removing only the payout(s) being claimed. The vendor.ak validator expects the
+# continuing output datum to equal the input datum minus the matured payouts, so
+# we must start from what is on-chain (which shrinks as milestones are claimed),
+# not from the static schedule. Retained payouts and the vendor field are copied
+# verbatim, keeping the datum byte-identical to the contract's reconstruction.
+INPUT_DATUM_FILE="${OUT_DIR}/vendor-datum-input.json"
+if ! jq -e --arg txin "$VENDOR_TX_IN" \
+        '.[$txin].inlineDatum // .[$txin].datum // empty' \
+        "$VENDOR_SELECTED_JSON" > "$INPUT_DATUM_FILE"; then
+    echo "Error: vendor UTxO ${VENDOR_TX_IN} has no inline datum to spend." >&2
+    echo "Set VENDOR_TX_IN to the vendor-script output carrying the milestone datum." >&2
+    exit 1
+fi
+
+# Matured-set guard. The vendor.ak `withdraw` redeemer pays out EVERY payout that
+# is active and matured within the tx validity window - not only the milestones
+# named in CLAIM_MILESTONES. So the claim set must exactly equal the set of
+# payouts that are active and matured in the live on-chain datum, or the contract
+# rejects the spend. We read status/maturation straight from the input datum and
+# use wall-clock now as the threshold (INVALID_BEFORE is set to the current tip,
+# so its POSIX time is now; maturations are day-aligned, far from "now").
+ONCHAIN_MATURED_SIGS="$(
+    jq -c --argjson now "$NOW_MS" --arg policy "$USDCX_POLICY_ID" --arg asset "$USDCX_ASSET_NAME" '
+      def ada_of:
+        ([ .fields[1].map[] | select(.k.bytes == "")
+           | .v.map[] | select(.k.bytes == "") | .v.int ] | (first // 0));
+      def usdcx_of($p; $a):
+        ([ .fields[1].map[] | select(.k.bytes == $p)
+           | .v.map[] | select(.k.bytes == $a) | .v.int ] | (first // 0));
+      [ .fields[1].list[]
+        | select(.fields[2].constructor == 0)   # status Active (Paused == 1)
+        | select(.fields[0].int <= $now)         # matured at/ before now
+        | {maturation: .fields[0].int, ada: ada_of, usdcx: usdcx_of($policy; $asset)} ]
+    ' "$INPUT_DATUM_FILE"
+)"
+
+GUARD_JSON="$(
+    jq -c \
+        --argjson matured "$ONCHAIN_MATURED_SIGS" \
+        --argjson claim_ids "$CLAIM_IDS_JSON" '
+      . as $sched
+      | ($matured | map(
+          . as $sig
+          | ( $sched[]
+              | select(.maturation == $sig.maturation
+                       and .ada_lovelace == $sig.ada
+                       and .usdcx_base == $sig.usdcx)
+              | .id )
+            // ("?(maturation=" + ($sig.maturation | tostring) + ")") )) as $matured_ids
+      | { matured_ids: $matured_ids,
+          missing: ($matured_ids - $claim_ids),
+          extra:   ($claim_ids - $matured_ids) }
+    ' "$SCHEDULE_FILE"
+)"
+MATURED_IDS="$(jq -r '.matured_ids | join(" ")' <<<"$GUARD_JSON")"
+MISSING_CLAIMS="$(jq -r '.missing | join(" ")' <<<"$GUARD_JSON")"
+EXTRA_CLAIMS="$(jq -r '.extra | join(" ")' <<<"$GUARD_JSON")"
+
+if [[ -z "$MATURED_IDS" ]]; then
+    echo "Error: no milestones are active and matured on-chain right now; nothing to claim." >&2
+    echo "  You selected: ${CLAIM_MILESTONES}" >&2
+    [[ "${ALLOW_UNMATURED_CLAIM:-0}" != "1" ]] && exit 1
+    echo "Warning: ALLOW_UNMATURED_CLAIM=1 set; continuing for dry-run debugging only." >&2
+fi
+
+if [[ -n "$MISSING_CLAIMS" || -n "$EXTRA_CLAIMS" ]]; then
+    echo "Error: claim set does not match the milestones active and matured on-chain." >&2
+    echo "  Active & matured now: ${MATURED_IDS:-(none)}" >&2
+    echo "  You selected:         ${CLAIM_MILESTONES}" >&2
+    [[ -n "$MISSING_CLAIMS" ]] && \
+        echo "  Matured but not selected (the contract will require these in the same tx): ${MISSING_CLAIMS}" >&2
+    [[ -n "$EXTRA_CLAIMS" ]] && \
+        echo "  Selected but not active/matured on-chain (cannot be claimed now): ${EXTRA_CLAIMS}" >&2
+    echo "  Fix: set CLAIM_MILESTONES=\"${MATURED_IDS}\"" >&2
+    if [[ "${ALLOW_UNMATURED_CLAIM:-0}" != "1" ]]; then
+        exit 1
+    fi
+    echo "Warning: ALLOW_UNMATURED_CLAIM=1 set; continuing for dry-run debugging only." >&2
+fi
+
+jq \
+    --arg policy "$USDCX_POLICY_ID" \
+    --arg asset "$USDCX_ASSET_NAME" \
+    --argjson sigs "$CLAIM_SIGS_JSON" '
+  def ada_of:
+    ([ .fields[1].map[] | select(.k.bytes == "")
+       | .v.map[] | select(.k.bytes == "") | .v.int ] | (first // 0));
+  def usdcx_of($p; $a):
+    ([ .fields[1].map[] | select(.k.bytes == $p)
+       | .v.map[] | select(.k.bytes == $a) | .v.int ] | (first // 0));
+  .fields[1].list |= [ .[]
+      | . as $p
+      | select(
+          ( $sigs
+            | any(.maturation == ($p.fields[0].int)
+                  and .ada     == ($p | ada_of)
+                  and .usdcx   == ($p | usdcx_of($policy; $asset))) )
+          | not ) ]
+' "$INPUT_DATUM_FILE" > "$REMAINING_DATUM_FILE"
+
+INPUT_PAYOUT_COUNT="$(jq '.fields[1].list | length' "$INPUT_DATUM_FILE")"
+REMAINING_PAYOUT_COUNT="$(jq '.fields[1].list | length' "$REMAINING_DATUM_FILE")"
+REMOVED_PAYOUT_COUNT=$((INPUT_PAYOUT_COUNT - REMAINING_PAYOUT_COUNT))
+if (( REMOVED_PAYOUT_COUNT != CLAIM_COUNT )); then
+    echo "Error: expected to remove ${CLAIM_COUNT} payout(s) from the vendor datum but removed ${REMOVED_PAYOUT_COUNT}." >&2
+    echo "The on-chain datum at ${VENDOR_TX_IN} may not contain the milestone(s) you are claiming" >&2
+    echo "(already claimed?), or the wrong vendor UTxO was selected. Set VENDOR_TX_IN explicitly." >&2
     exit 1
 fi
 
