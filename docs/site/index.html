@@ -239,9 +239,10 @@
         padding: 42px 0;
       }
 
-      .band.dark {
-        background: #020a18;
-        color: var(--text);
+      .resource-band {
+        background: #eef5ff;
+        border-top: 4px solid var(--orange);
+        color: #102033;
       }
 
       .section + .section {
@@ -264,8 +265,12 @@
         line-height: 1.55;
       }
 
-      .dark .section-header p {
-        color: var(--muted);
+      .resource-band .section-header h2 {
+        color: var(--navy);
+      }
+
+      .resource-band .section-header p {
+        color: #37475c;
       }
 
       .timeline {
@@ -434,13 +439,19 @@
 
       .links {
         display: grid;
-        gap: 10px;
+        gap: 12px;
       }
 
       .links a {
-        color: var(--text);
-        border-bottom: 1px solid rgba(66, 133, 244, 0.5);
+        color: var(--navy);
+        border-bottom: 2px solid rgba(66, 133, 244, 0.42);
         width: fit-content;
+        font-weight: 750;
+      }
+
+      .links a:hover {
+        border-color: var(--orange);
+        color: #072f70;
       }
 
       .link-groups {
@@ -450,17 +461,24 @@
       }
 
       .link-group {
-        border-top: 1px solid var(--line);
-        padding-top: 18px;
+        min-height: 190px;
+        border: 1px solid rgba(15, 63, 138, 0.18);
+        border-radius: 8px;
+        padding: 22px;
+        background: var(--white);
+        box-shadow: 0 16px 34px rgba(15, 63, 138, 0.12);
       }
 
       .link-group h3 {
         margin: 0 0 12px;
         font-size: 18px;
+        color: #102033;
       }
 
-      .link-group .links a {
-        color: var(--text);
+      .link-group p {
+        margin: 0;
+        color: #516070;
+        line-height: 1.52;
       }
 
       .footer {
@@ -468,6 +486,29 @@
         border-top: 1px solid var(--line);
         padding: 26px 0;
         font-size: 13px;
+      }
+
+      .footer .shell {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .top-link {
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 8px;
+        padding: 0 14px;
+        color: var(--white);
+        font-weight: 750;
+      }
+
+      .top-link:hover {
+        background: rgba(255, 255, 255, 0.08);
       }
 
       @media (max-width: 820px) {
@@ -518,6 +559,11 @@
           grid-template-columns: 1fr;
         }
 
+        .footer .shell {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
         .nav {
           height: auto;
           padding: 18px 0;
@@ -532,7 +578,7 @@
   </head>
   <body>
     <div class="page">
-      <header class="topbar">
+      <header id="top" class="topbar">
         <nav class="shell nav" aria-label="Primary navigation">
           <a class="brand" href="https://blinklabs.io">
             <img
@@ -746,7 +792,7 @@
       </div>
     </section>
 
-    <section id="links" class="band dark">
+    <section id="links" class="band resource-band">
       <div class="shell section">
         <div class="section-header">
           <h2>Links</h2>
@@ -787,7 +833,8 @@
 
     <footer class="footer">
       <div class="shell">
-        Blink Labs Treasury reporting. Built from the public treasury proposal repository.
+        <span>Blink Labs Treasury reporting. Built from the public treasury proposal repository.</span>
+        <a class="top-link" href="#top">Top</a>
       </div>
     </footer>
   </body>
