@@ -6,7 +6,7 @@ METADATA_FILE ?= metadata/proposal-metadata.json
 
 .PHONY: help check-prereqs generate-test-keys register-stake delegate-always-abstain fetch-guardrails metadata sign-metadata upload-ipfs hash \
         governance-action build-tx sign-tx submit-testnet submit-mainnet test-lifecycle report report-quarterly journal-entry \
-        fund-milestones claim-milestones clean
+        fund-milestones claim-milestones pages clean
 
 help: ## Show all available targets
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
@@ -73,6 +73,9 @@ fund-milestones: ## Build mixed ADA/USDCx vendor milestone funding transaction
 
 claim-milestones: ## Build claim transaction for matured vendor milestones
 	NETWORK=$(NETWORK) scripts/build-milestone-claim.sh
+
+pages: ## Build the GitHub Pages static site
+	scripts/build-pages.sh
 
 clean: ## Remove generated transaction and action files
 	rm -f *.action *.raw *.signed tx.* stake-reg.* vote-deleg.* keys/stake-reg.cert keys/treasury-vote-deleg.cert scripts/guardrails.plutus

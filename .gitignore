@@ -11,6 +11,7 @@ config.env.*
 # Build artifacts
 node_modules/
 tmp/
+_site/
 *.action
 *.raw
 *.signed
