@@ -21,10 +21,15 @@ REPORT_NAME = re.compile(
 JOURNAL_NAME = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2})-.+\.md$")
 TRANSACTION_HASH = re.compile(r"^[0-9a-fA-F]{64}$")
 PLACEHOLDER = "<!-- GENERATED_REPORTS_AND_JOURNAL -->"
+ROADMAP_STATUS_PLACEHOLDERS = {
+    "Q2 2026": "<!-- GENERATED_Q2_2026_STATUS -->",
+    "Q3 2026": "<!-- GENERATED_Q3_2026_STATUS -->",
+    "Q4 2026": "<!-- GENERATED_Q4_2026_STATUS -->",
+    "Q1 2027": "<!-- GENERATED_Q1_2027_STATUS -->",
+}
 PLACEHOLDERS = {
     "status_period": "<!-- GENERATED_STATUS_PERIOD -->",
     "current_status": "<!-- GENERATED_CURRENT_STATUS -->",
-    "milestones": "<!-- GENERATED_ROADMAP_MILESTONES -->",
     "upcoming": "<!-- GENERATED_UPCOMING_WORK -->",
     "risks": "<!-- GENERATED_REPORT_RISKS -->",
     "funding": "<!-- GENERATED_FUNDING_SUMMARY -->",
@@ -341,32 +346,18 @@ def current_status(report: Report | None) -> str:
     return "\n".join(items)
 
 
-def roadmap_milestones(report: Report | None) -> str:
-    if report is None or not report.milestones:
-        return (
-            '<article class="stage milestone-stage not-started">'
-            "<h3>Milestone status unavailable</h3>"
-            "<p>See the progress reports for the latest delivery status.</p>"
-            "</article>"
-        )
+def roadmap_status(report: Report | None, quarter: str) -> str:
+    if report is None:
+        return "Status unavailable"
 
-    cards: list[str] = []
-    for milestone in report.milestones:
-        cards.append(
-            '<article class="stage milestone-stage {}">'
-            '<p class="milestone-target">Target: {}</p>'
-            '<span class="milestone-status">{}</span>'
-            "<h3>{}</h3>"
-            "<p>{}</p>"
-            "</article>".format(
-                status_class(milestone.status),
-                html.escape(milestone.target),
-                html.escape(milestone.status),
-                html.escape(milestone.title),
-                html.escape(milestone.notes or "See the latest report for details."),
-            )
-        )
-    return "\n".join(cards)
+    matching = [
+        milestone
+        for milestone in report.milestones
+        if milestone.title.startswith(f"{quarter}:")
+    ]
+    if len(matching) != 1:
+        return "Status not reported"
+    return html.escape(matching[0].status)
 
 
 def context_card(title: str, items: tuple[str, ...], report: Report | None) -> str:
@@ -608,7 +599,6 @@ def main() -> int:
         PLACEHOLDER: f"{report_card(reports)}\n{journal_card(entries)}",
         PLACEHOLDERS["status_period"]: status_period(latest_report),
         PLACEHOLDERS["current_status"]: current_status(latest_report),
-        PLACEHOLDERS["milestones"]: roadmap_milestones(latest_report),
         PLACEHOLDERS["upcoming"]: context_card(
             "Upcoming Work", latest_report.upcoming if latest_report else (), latest_report
         ),
@@ -617,6 +607,12 @@ def main() -> int:
         ),
         PLACEHOLDERS["funding"]: render_funding_summary(repository_root, entries),
     }
+    replacements.update(
+        {
+            placeholder: roadmap_status(latest_report, quarter)
+            for quarter, placeholder in ROADMAP_STATUS_PLACEHOLDERS.items()
+        }
+    )
     for placeholder, rendered in replacements.items():
         page = page.replace(placeholder, rendered)
     output_index.write_text(page, encoding="utf-8")

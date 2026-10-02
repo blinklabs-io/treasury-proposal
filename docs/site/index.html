@@ -290,7 +290,7 @@
 
       .timeline {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 14px;
         padding: 6px 4px 16px;
       }
@@ -328,6 +328,11 @@
         overflow-wrap: anywhere;
       }
 
+      .stage .check-list {
+        padding-left: 0;
+        list-style: none;
+      }
+
       .foundation-row .stage {
         min-height: 210px;
       }
@@ -344,44 +349,24 @@
         background: #eee4f5;
       }
 
-      .milestone-stage {
-        min-height: 260px;
-      }
-
-      .milestone-stage.complete {
-        background: #dceadf;
-      }
-
-      .milestone-stage.in-progress {
+      .s4 {
         background: #f4e4d5;
       }
 
-      .milestone-stage.not-started {
+      .s5 {
         background: #e3ecf4;
       }
 
-      .milestone-target,
-      .milestone-status {
-        display: inline-block;
-        margin: 0 0 10px;
-        color: #516070;
-        font-size: 12px;
-        font-weight: 750;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
+      .s6 {
+        background: #f1e2d7;
       }
 
-      .milestone-status {
-        border-radius: 99px;
-        padding: 4px 8px;
-        background: rgba(255, 255, 255, 0.72);
+      .s7 {
+        background: #f4c7c3;
       }
 
-      .milestone-stage p:last-child {
-        margin: 0;
-        color: #263950;
-        font-size: 13px;
-        line-height: 1.45;
+      .s8 {
+        background: #d8e5ef;
       }
 
       .report-context-grid {
@@ -831,7 +816,7 @@
         <div class="section-header">
           <h2>Dingo's Path</h2>
           <p>
-            Prior work built the pieces. The treasury-funded roadmap is advancing Dingo toward a production-grade Cardano node.
+            Past work built the pieces. This funded roadmap takes Dingo from testnet block production to production readiness.
           </p>
         </div>
 
@@ -859,7 +844,7 @@
 
         <div class="timeline" aria-label="Dingo roadmap">
           <article class="stage s3">
-            <h3>Proposal Baseline (historical)</h3>
+            <h3>Proposal Baseline</h3>
             <ul>
               <li>Dingo operated as a Cardano relay node, syncing across eras.</li>
               <li>314 conformance tests passing.</li>
@@ -870,7 +855,57 @@
             </ul>
           </article>
 
-          <!-- GENERATED_ROADMAP_MILESTONES -->
+          <article class="stage s4">
+            <h3>Q2 2026: <!-- GENERATED_Q2_2026_STATUS --></h3>
+            <ul class="check-list">
+              <li>✓ Praos consensus completion.</li>
+              <li>✓ Hard fork combinator.</li>
+              <li>✓ Genesis bootstrap.</li>
+              <li>✓ Stable preview/preprod sync.</li>
+              <li>✓ Preprod block production.</li>
+              <li>✓ Linear Leios prototype with IO Engineering.</li>
+              <li>✓ Musashi Dojo developer environment.</li>
+            </ul>
+          </article>
+
+          <article class="stage s5">
+            <h3>Q3 2026: <!-- GENERATED_Q3_2026_STATUS --></h3>
+            <ul>
+              <li>Operational hardening.</li>
+              <li>Storage scalability at mainnet scale.</li>
+              <li>UTxO set management.</li>
+              <li>Long-running stability.</li>
+              <li>Security audit kickoff.</li>
+            </ul>
+          </article>
+
+          <article class="stage s6">
+            <h3>Q4 2026: <!-- GENERATED_Q4_2026_STATUS --></h3>
+            <ul>
+              <li>Dijkstra readiness.</li>
+              <li>Plutigo V4.</li>
+              <li>Leios consensus integration.</li>
+              <li>Node-to-Client and LocalStateQuery gaps.</li>
+            </ul>
+          </article>
+
+          <article class="stage s7">
+            <h3>Ecosystem 2026 target</h3>
+            <ul>
+              <li>Dijkstra hard fork expected by end of year.</li>
+            </ul>
+          </article>
+
+          <article class="stage s8">
+            <h3>Q1 2027: <!-- GENERATED_Q1_2027_STATUS --></h3>
+            <ul>
+              <li>Audit completion.</li>
+              <li>Mainnet block-production readiness.</li>
+              <li>Mithril integration.</li>
+              <li>Operator documentation.</li>
+              <li>Ecosystem integration.</li>
+            </ul>
+          </article>
         </div>
 
         <div class="report-context-grid">

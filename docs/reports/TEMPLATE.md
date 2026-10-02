@@ -11,10 +11,10 @@
 
 | Milestone | Target | Status | Notes |
 |-----------|--------|--------|-------|
-| Q1: Consensus completeness & operational hardening kickoff | End of Q1 | Not started | |
-| Q2: Dijkstra hard fork readiness & Plutigo V4 | End of Q2 | Not started | |
-| Q3: Leios prototype, mainnet-scale testing & security audit start | End of Q3 | Not started | |
-| Q4: Mainnet readiness, audit completion & ecosystem integration | End of Q4 | Not started | |
+| Q2 2026: Testnet block production and Leios prototype | End of Q2 2026 | Update | Set the current status and notes for this period. |
+| Q3 2026: Operational hardening and storage scalability | End of Q3 2026 | Update | Set the current status and notes for this period. |
+| Q4 2026: Dijkstra readiness and Leios integration | End of Q4 2026 | Update | Set the current status and notes for this period. |
+| Q1 2027: Mainnet readiness, audit completion, and ecosystem integration | End of Q1 2027 | Update | Set the current status and notes for this period. |
 
 ## Deliverables This Period
 
