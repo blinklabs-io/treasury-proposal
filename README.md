@@ -89,6 +89,14 @@ make report-quarterly    # Quarterly report with financials -> docs/reports/YYYY
 
 Monthly reports omit the Financial Summary section; quarterly reports include it. If `$EDITOR` is set, the generated report opens for editing.
 
+The `make pages` build reads the latest report's milestone table, summary,
+upcoming work, and risks from `docs/reports/`. It uses transaction entries in
+`journal/` and their on-chain metadata in `metadata/transactions/` to render
+recent transactions and reconcile milestone balances. The landing page's status,
+roadmap, current milestone balances, and Latest Updates section are generated
+from those sources. The proposal baseline and initial funding history are
+presented as historical context.
+
 ## Transparency Journal
 
 Every on-chain transaction against the treasury and vendor contracts is recorded in [`journal/`](journal/):

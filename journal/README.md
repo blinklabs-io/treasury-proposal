@@ -46,6 +46,16 @@ Anyone can verify a journal entry by:
 2. Confirming the on-chain metadata matches the recorded **Metadata Hash**
 3. Checking that the **Amount** and **Action** match the on-chain datum
 
+## Site-Generated Milestone Balances
+
+The Pages build derives the vendor schedule from the fund transaction metadata
+in `metadata/transactions/` and counts milestone claims from `withdraw`
+metadata documents matched to `milestone-claim` journal entries by date. Keep a
+transaction metadata JSON file for every milestone claim. If a claim is missing
+its journal entry or matching metadata, or a later schedule change, sweep, or
+reorganization needs reconciliation, the site omits the derived balance rather
+than displaying a stale figure.
+
 ## Adding an Entry
 
 Use the helper script:

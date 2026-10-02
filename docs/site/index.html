@@ -215,6 +215,16 @@
         line-height: 1.42;
       }
 
+      .status-as-of {
+        margin: -6px 0 16px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .status-list strong {
+        color: var(--text);
+      }
+
       .dot {
         width: 8px;
         height: 8px;
@@ -237,6 +247,11 @@
       .funding-band {
         border-top: 1px solid #d6dee8;
         padding: 42px 0;
+      }
+
+      .activity-band {
+        background: #f6f8fc;
+        border-top: 1px solid #d6dee8;
       }
 
       .resource-band {
@@ -275,7 +290,7 @@
 
       .timeline {
         display: grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
         gap: 14px;
         padding: 6px 4px 16px;
       }
@@ -313,11 +328,6 @@
         overflow-wrap: anywhere;
       }
 
-      .stage .check-list {
-        padding-left: 0;
-        list-style: none;
-      }
-
       .foundation-row .stage {
         min-height: 210px;
       }
@@ -334,24 +344,78 @@
         background: #eee4f5;
       }
 
-      .s4 {
+      .milestone-stage {
+        min-height: 260px;
+      }
+
+      .milestone-stage.complete {
+        background: #dceadf;
+      }
+
+      .milestone-stage.in-progress {
         background: #f4e4d5;
       }
 
-      .s5 {
+      .milestone-stage.not-started {
         background: #e3ecf4;
       }
 
-      .s6 {
-        background: #f1e2d7;
+      .milestone-target,
+      .milestone-status {
+        display: inline-block;
+        margin: 0 0 10px;
+        color: #516070;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
-      .s7 {
-        background: #f4c7c3;
+      .milestone-status {
+        border-radius: 99px;
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.72);
       }
 
-      .s8 {
-        background: #d8e5ef;
+      .milestone-stage p:last-child {
+        margin: 0;
+        color: #263950;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .report-context-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .report-context-card {
+        border: 1px solid rgba(0, 10, 27, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        background: #ffffff;
+      }
+
+      .report-context-card h3 {
+        margin: 0 0 12px;
+        color: #102033;
+        font-size: 18px;
+      }
+
+      .report-context-card ul {
+        display: grid;
+        gap: 9px;
+        margin: 0;
+        padding-left: 19px;
+        color: #37475c;
+        line-height: 1.48;
+      }
+
+      .report-context-card a {
+        color: var(--navy);
+        font-weight: 750;
       }
 
       .grid-2 {
@@ -376,7 +440,7 @@
       }
 
       .funding-figures.compact {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         justify-content: start;
       }
 
@@ -417,6 +481,136 @@
         font-size: 13px;
         font-weight: 400;
         line-height: 1.45;
+      }
+
+      .activity-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .activity-card {
+        min-width: 0;
+        border: 1px solid rgba(15, 63, 138, 0.18);
+        border-radius: 8px;
+        padding: 22px;
+        background: #ffffff;
+        box-shadow: 0 16px 34px rgba(15, 63, 138, 0.1);
+      }
+
+      .activity-label {
+        margin: 0 0 8px;
+        color: #516070;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .activity-card h3 {
+        margin: 0 0 12px;
+        color: #102033;
+        font-size: 20px;
+        line-height: 1.3;
+      }
+
+      .activity-card h3 a:hover,
+      .activity-links a:hover,
+      .activity-more:hover {
+        color: #072f70;
+        text-decoration: underline;
+      }
+
+      .activity-summary,
+      .journal-entry p {
+        margin: 0 0 12px;
+        color: #37475c;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+      }
+
+      .activity-more,
+      .activity-links a {
+        color: var(--navy);
+        font-weight: 750;
+      }
+
+      .activity-archive {
+        margin-top: 20px;
+        border-top: 1px solid #d6dee8;
+        padding-top: 14px;
+        color: #37475c;
+      }
+
+      .activity-archive summary {
+        cursor: pointer;
+        font-weight: 750;
+      }
+
+      .activity-archive ul {
+        display: grid;
+        gap: 8px;
+        margin: 12px 0 0;
+        padding-left: 20px;
+        line-height: 1.4;
+      }
+
+      .activity-archive a {
+        color: var(--navy);
+        font-weight: 650;
+      }
+
+      .journal-list {
+        display: grid;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .journal-entry {
+        border-bottom: 1px solid #d6dee8;
+        padding: 14px 0;
+      }
+
+      .journal-entry:first-child {
+        padding-top: 0;
+      }
+
+      .journal-entry:last-child {
+        border-bottom: 0;
+      }
+
+      .journal-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .journal-action {
+        color: #102033;
+        font-weight: 750;
+        overflow-wrap: anywhere;
+      }
+
+      .journal-date {
+        flex: 0 0 auto;
+        color: #516070;
+        font-size: 13px;
+      }
+
+      .journal-entry p {
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .activity-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        font-size: 13px;
       }
 
       .card {
@@ -519,6 +713,8 @@
         .foundation-row,
         .timeline,
         .section-header,
+        .report-context-grid,
+        .activity-grid,
         .link-groups,
         .funding-figures,
         .funding-figures.compact {
@@ -591,6 +787,7 @@
           <div class="navlinks">
             <a href="#roadmap">Roadmap</a>
             <a href="#funding">Funding</a>
+            <a href="#updates">Latest Updates</a>
             <a href="#links">Links</a>
           </div>
         </nav>
@@ -619,14 +816,10 @@
           </div>
 
           <aside class="status-panel">
-            <h2>Current Status</h2>
+            <h2>Milestone Status</h2>
+            <p class="status-as-of"><!-- GENERATED_STATUS_PERIOD --></p>
             <ul class="status-list">
-              <li><span class="dot"></span><span>Syncs from genesis through current Cardano eras.</span></li>
-              <li><span class="dot"></span><span>Plutus V1/V2/V3 at 100% conformance.</span></li>
-              <li><span class="dot"></span><span>314 conformance tests passing.</span></li>
-              <li><span class="dot"></span><span>ChainSync, mempool, governance transactions, VRF/KES primitives.</span></li>
-              <li><span class="dot orange"></span><span>Preview, Preprod, and Musashi block-production now.</span></li>
-              <li><span class="dot orange"></span><span>Not yet recommended for mainnet block production.</span></li>
+              <!-- GENERATED_CURRENT_STATUS -->
             </ul>
           </aside>
         </section>
@@ -638,7 +831,7 @@
         <div class="section-header">
           <h2>Dingo's Path</h2>
           <p>
-            Past work built the pieces. Dingo connects them into a Go Cardano node. Future funding takes it from serious implementation to production-grade block producer.
+            Prior work built the pieces. The treasury-funded roadmap is advancing Dingo toward a production-grade Cardano node.
           </p>
         </div>
 
@@ -666,7 +859,7 @@
 
         <div class="timeline" aria-label="Dingo roadmap">
           <article class="stage s3">
-            <h3>Proposal Baseline</h3>
+            <h3>Proposal Baseline (historical)</h3>
             <ul>
               <li>Dingo operated as a Cardano relay node, syncing across eras.</li>
               <li>314 conformance tests passing.</li>
@@ -677,57 +870,12 @@
             </ul>
           </article>
 
-          <article class="stage s4">
-            <h3>Q2 2026: Complete</h3>
-            <ul class="check-list">
-              <li>✓ Praos consensus completion.</li>
-              <li>✓ Hard fork combinator.</li>
-              <li>✓ Genesis bootstrap.</li>
-              <li>✓ Stable preview/preprod sync.</li>
-              <li>✓ Preprod block production.</li>
-              <li>✓ Linear Leios prototype with IO Engineering.</li>
-              <li>✓ Musashi Dojo developer environment.</li>
-            </ul>
-          </article>
+          <!-- GENERATED_ROADMAP_MILESTONES -->
+        </div>
 
-          <article class="stage s5">
-            <h3>Q3 2026: In Progress</h3>
-            <ul>
-              <li>Operational hardening.</li>
-              <li>Storage scalability at mainnet scale.</li>
-              <li>UTxO set management.</li>
-              <li>Long-running stability.</li>
-              <li>Security audit kickoff.</li>
-            </ul>
-          </article>
-
-          <article class="stage s6">
-            <h3>Q4 2026: Planned</h3>
-            <ul>
-              <li>Dijkstra readiness.</li>
-              <li>Plutigo V4.</li>
-              <li>Leios consensus integration.</li>
-              <li>Node-to-Client and LocalStateQuery gaps.</li>
-            </ul>
-          </article>
-
-          <article class="stage s7">
-            <h3>Ecosystem 2026 target</h3>
-            <ul>
-              <li>Dijkstra hard fork expected by end of year.</li>
-            </ul>
-          </article>
-
-          <article class="stage s8">
-            <h3>Q1 2027: Target</h3>
-            <ul>
-              <li>Audit completion.</li>
-              <li>Mainnet block-production readiness.</li>
-              <li>Mithril integration.</li>
-              <li>Operator documentation.</li>
-              <li>Ecosystem integration.</li>
-            </ul>
-          </article>
+        <div class="report-context-grid">
+          <!-- GENERATED_UPCOMING_WORK -->
+          <!-- GENERATED_REPORT_RISKS -->
         </div>
       </div>
     </section>
@@ -763,32 +911,29 @@
 
         <div class="funding-figures compact" aria-label="Smart contract funding figures">
           <article class="funding-figure">
-            <p class="label">Vendor Milestones Funded</p>
-            <p class="value">1,528,333.33 USDCx</p>
-            <p class="subvalue">+ 370,000 ADA </p>
-            <p class="note">This is configured for vendor milestone payments.</p>
-          </article>
-
-          <article class="funding-figure">
-            <p class="label">Treasury Remainder</p>
+            <p class="label">Contingency at Funding</p>
             <p class="value">2,974.53 USDCx <span class="inline-note">Remaining amount after vendor milestone funding.</span></p>
-            <p class="subvalue">+ 900,001.18 ADA <span class="inline-note">Contingency remains after vendor milestone funding.</span></p>
+            <p class="subvalue">+ 900,001.18 ADA <span class="inline-note">Recorded when vendor milestones were funded.</span></p>
           </article>
 
-          <article class="funding-figure">
-            <p class="label">Disbursed To Date</p>
-            <p class="value">458,333.33 USDCx</p>
-            <p class="subvalue">+ 92,500 ADA </p>
-            <p class="note">All claimed through recorded milestone claims.</p>
-          </article>
-
-          <article class="funding-figure">
-            <p class="label">Vendor Remaining</p>
-            <p class="value">1,070,000.00 USDCx</p>
-            <p class="subvalue">+ 277,500 ADA</p>
-          </article>
+          <!-- GENERATED_FUNDING_SUMMARY -->
         </div>
 
+      </div>
+    </section>
+
+    <section id="updates" class="band activity-band">
+      <div class="shell section">
+        <div class="section-header">
+          <h2>Latest Updates</h2>
+          <p>
+            Progress report summaries and recent treasury transactions are generated from the public Markdown reports and journal during the Pages build.
+          </p>
+        </div>
+
+        <div class="activity-grid">
+          <!-- GENERATED_REPORTS_AND_JOURNAL -->
+        </div>
       </div>
     </section>
 

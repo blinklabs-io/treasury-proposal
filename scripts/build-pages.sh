@@ -14,6 +14,8 @@ rm -rf "${output_dir}"
 mkdir -p "${output_dir}"
 cp -R "${source_dir}/." "${output_dir}/"
 
+python3 "${repo_root}/scripts/render-pages-content.py" "${repo_root}" "${output_dir}/index.html"
+
 touch "${output_dir}/.nojekyll"
 
 echo "GitHub Pages site generated in ${output_dir}"
