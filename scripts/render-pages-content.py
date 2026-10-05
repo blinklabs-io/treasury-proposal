@@ -167,11 +167,7 @@ def load_reports(report_dir: Path) -> list[Report]:
         period = report_period(path)
         if period is None:
             continue
-        try:
-            markdown = path.read_text(encoding="utf-8")
-        except OSError as error:
-            print(f"warning: cannot read report {path}: {error}", file=sys.stderr)
-            continue
+        markdown = path.read_text(encoding="utf-8")
 
         summary_body = section_body(markdown, "Summary")
         paragraphs = tuple(
@@ -180,8 +176,7 @@ def load_reports(report_dir: Path) -> list[Report]:
             if (text := markdown_text(block))
         )
         if not paragraphs:
-            print(f"warning: report has no Summary section: {path}", file=sys.stderr)
-            continue
+            raise ValueError(f"report has no Summary section: {path}")
 
         title_match = re.search(r"(?m)^#\s+(.+?)\s*$", markdown)
         title = markdown_text(title_match.group(1)) if title_match else path.stem
@@ -229,11 +224,7 @@ def load_journal(journal_dir: Path) -> list[JournalEntry]:
     for path in journal_dir.glob("*.md"):
         if not JOURNAL_NAME.fullmatch(path.name):
             continue
-        try:
-            markdown = path.read_text(encoding="utf-8")
-        except OSError as error:
-            print(f"warning: cannot read journal entry {path}: {error}", file=sys.stderr)
-            continue
+        markdown = path.read_text(encoding="utf-8")
 
         fields = table_fields(markdown)
         try:
@@ -242,11 +233,9 @@ def load_journal(journal_dir: Path) -> list[JournalEntry]:
             transaction_hash = fields["Transaction Hash"]
             justification = fields["Justification"]
         except (KeyError, ValueError) as error:
-            print(f"warning: skipping incomplete journal entry {path}: {error}", file=sys.stderr)
-            continue
+            raise ValueError(f"incomplete journal entry {path}: {error}") from error
         if not action or not justification:
-            print(f"warning: skipping incomplete journal entry {path}", file=sys.stderr)
-            continue
+            raise ValueError(f"incomplete journal entry {path}")
 
         entries.append(
             JournalEntry(
@@ -263,10 +252,7 @@ def load_journal(journal_dir: Path) -> list[JournalEntry]:
 
 def report_card(reports: list[Report]) -> str:
     if not reports:
-        return (
-            '<article class="activity-card"><p class="activity-label">Progress Reports</p>'
-            "<p>No progress reports are available yet.</p></article>"
-        )
+        raise ValueError("no progress reports available")
 
     latest = reports[0]
     report_path = f"docs/reports/{latest.path.name}"
@@ -304,12 +290,32 @@ def report_card(reports: list[Report]) -> str:
 
 
 def status_class(status: str) -> str:
-    normalized = status.casefold()
-    if "complete" in normalized:
-        return "complete"
-    if "progress" in normalized:
-        return "in-progress"
-    return "not-started"
+    classes = {
+        "complete": "complete",
+        "in progress": "in-progress",
+        "not started": "not-started",
+        "planned": "not-started",
+        "target": "not-started",
+    }
+    try:
+        return classes[status.casefold()]
+    except KeyError:
+        raise ValueError(f"unsupported milestone status: {status!r}") from None
+
+
+def validate_latest_report(report: Report) -> None:
+    for quarter in ROADMAP_STATUS_PLACEHOLDERS:
+        roadmap_status(report, quarter)
+    if len(report.milestones) != len(ROADMAP_STATUS_PLACEHOLDERS):
+        raise ValueError(f"{report.path}: unexpected milestone rows")
+    for milestone in report.milestones:
+        if not all((milestone.title, milestone.target, milestone.status, milestone.notes)):
+            raise ValueError(f"{report.path}: incomplete milestone row: {milestone.title}")
+        status_class(milestone.status)
+    if not report.upcoming:
+        raise ValueError(f"{report.path}: missing Upcoming Work bullet items")
+    if not report.risks:
+        raise ValueError(f"{report.path}: missing Risks and Issues bullet items")
 
 
 def report_url(report: Report) -> str:
@@ -318,70 +324,58 @@ def report_url(report: Report) -> str:
     )
 
 
-def status_period(report: Report | None) -> str:
-    if report is None:
-        return "No progress report available."
+def status_period(report: Report) -> str:
     return f'Based on <a href="{report_url(report)}">{html.escape(report.title)}</a>'
 
 
-def current_status(report: Report | None) -> str:
-    if report is None or not report.milestones:
-        return (
-            '<li><span class="dot orange"></span><span>'
-            "Milestone status is unavailable in the latest report."
-            "</span></li>"
-        )
-
+def current_status(report: Report) -> str:
     items: list[str] = []
-    for milestone in report.milestones:
+    # Put ongoing work first, then future targets, then completed work.
+    priority = {"in-progress": 0, "not-started": 1, "complete": 2}
+    milestones = sorted(report.milestones, key=lambda item: priority[status_class(item.status)])
+    for milestone in milestones:
         dot_class = "" if status_class(milestone.status) == "complete" else " orange"
         label = milestone.title.split(":", 1)[0]
         items.append(
-            '<li><span class="dot{}"></span><span><strong>{} — {}</strong></span></li>'.format(
+            '<li><span class="dot{}"></span><span><strong>{} — {}</strong>'
+            '<span class="status-scope">{}</span>'
+            '<span class="status-note">{}</span></span></li>'.format(
                 dot_class,
                 html.escape(label),
                 html.escape(milestone.status),
+                html.escape(milestone.title.split(":", 1)[1].strip()),
+                html.escape(milestone.notes),
             )
         )
     return "\n".join(items)
 
 
-def roadmap_status(report: Report | None, quarter: str) -> str:
-    if report is None:
-        return "Status unavailable"
-
+def roadmap_status(report: Report, quarter: str) -> str:
     matching = [
         milestone
         for milestone in report.milestones
         if milestone.title.startswith(f"{quarter}:")
     ]
     if len(matching) != 1:
-        return "Status not reported"
+        raise ValueError(
+            f"{report.path}: expected exactly one milestone for {quarter}, found {len(matching)}"
+        )
     return html.escape(matching[0].status)
 
 
-def context_card(title: str, items: tuple[str, ...], report: Report | None) -> str:
-    report_link = report_url(report) if report is not None else ""
-    if items:
-        item_html = "".join(f"<li>{html.escape(item)}</li>" for item in items)
-        body = f"<ul>{item_html}</ul>"
-    elif report_link:
-        body = f'<p>See the <a href="{report_link}">latest report</a>.</p>'
-    else:
-        body = "<p>No information is available yet.</p>"
+def context_card(title: str, items: tuple[str, ...], report: Report) -> str:
+    if not items:
+        raise ValueError(f"{report.path}: missing {title} bullet items")
+    item_html = "".join(f"<li>{html.escape(item)}</li>" for item in items)
     heading = html.escape(title)
-    return f'<article class="report-context-card"><h3>{heading}</h3>{body}</article>'
+    return f'<article class="report-context-card"><h3>{heading}</h3><ul>{item_html}</ul></article>'
 
 
 def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
     metadata_dir = root / "metadata" / "transactions"
     metadata_documents: list[tuple[Path, dict[str, object]]] = []
     for path in metadata_dir.glob("*.json"):
-        try:
-            document = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
-            print(f"warning: cannot read transaction metadata {path}: {error}", file=sys.stderr)
-            continue
+        document = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(document, dict):
             continue
         candidates = [document, *[value for value in document.values() if isinstance(value, dict)]]
@@ -399,7 +393,7 @@ def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
         and isinstance(body.get("milestones"), list)
     ]
     if len(fund_records) != 1:
-        return funding_unavailable("funding schedule metadata is missing or ambiguous")
+        raise ValueError("funding schedule metadata is missing or ambiguous")
 
     _, fund_body = fund_records[0]
     totals = fund_body["totals"]
@@ -407,12 +401,12 @@ def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
     allocated_usdcx = totals.get("usdcxBaseUnits")
     allocated_ada = totals.get("adaLovelace")
     if not isinstance(allocated_usdcx, int) or not isinstance(allocated_ada, int):
-        return funding_unavailable("funding totals are not valid base-unit integers")
+        raise ValueError("funding totals are not valid base-unit integers")
 
     milestone_amounts: dict[str, tuple[int, int]] = {}
     for milestone in schedule:
         if not isinstance(milestone, dict):
-            return funding_unavailable("funding schedule contains an unsupported milestone")
+            raise ValueError("funding schedule contains an unsupported milestone")
         milestone_id = milestone.get("id")
         usdcx = milestone.get("usdcx_base")
         ada = milestone.get("ada_lovelace")
@@ -422,14 +416,14 @@ def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
             or not isinstance(ada, int)
             or milestone_id in milestone_amounts
         ):
-            return funding_unavailable("funding schedule has invalid or duplicate milestone values")
+            raise ValueError("funding schedule has invalid or duplicate milestone values")
         milestone_amounts[milestone_id] = (usdcx, ada)
 
     if (
         sum(value[0] for value in milestone_amounts.values()) != allocated_usdcx
         or sum(value[1] for value in milestone_amounts.values()) != allocated_ada
     ):
-        return funding_unavailable("funding totals do not match the milestone schedule")
+        raise ValueError("funding totals do not match the milestone schedule")
 
     unsupported_actions = {
         entry.action.casefold().replace(" ", "-")
@@ -438,7 +432,7 @@ def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
         in {"modify-project", "reorganize", "sweep-early"}
     }
     if unsupported_actions:
-        return funding_unavailable("later schedule changes, reorganizations, or sweeps need reconciliation")
+        raise ValueError("later schedule changes, reorganizations, or sweeps need reconciliation")
 
     claim_entries: dict[str, int] = {}
     for entry in entries:
@@ -458,25 +452,25 @@ def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
     if set(claim_entries) != set(withdrawal_documents) or any(
         claim_entries[day] != len(withdrawal_documents[day]) for day in claim_entries
     ):
-        return funding_unavailable("milestone claims and withdrawal metadata do not match")
+        raise ValueError("milestone claims and withdrawal metadata do not match")
 
     claimed_ids: list[str] = []
     for bodies in withdrawal_documents.values():
         for body in bodies:
             claimed = body.get("milestones")
             if not isinstance(claimed, dict):
-                return funding_unavailable("withdrawal metadata has no milestone list")
+                raise ValueError("withdrawal metadata has no milestone list")
             claimed_ids.extend(claimed.keys())
 
     if len(claimed_ids) != len(set(claimed_ids)) or any(
         milestone_id not in milestone_amounts for milestone_id in claimed_ids
     ):
-        return funding_unavailable("claimed milestone IDs are duplicated or absent from the schedule")
+        raise ValueError("claimed milestone IDs are duplicated or absent from the schedule")
 
     claimed_usdcx = sum(milestone_amounts[mid][0] for mid in claimed_ids)
     claimed_ada = sum(milestone_amounts[mid][1] for mid in claimed_ids)
     if claimed_usdcx > allocated_usdcx or claimed_ada > allocated_ada:
-        return funding_unavailable("claimed milestone amounts exceed the funded schedule")
+        raise ValueError("claimed milestone amounts exceed the funded schedule")
 
     summary = FundingSummary(
         allocated_usdcx=allocated_usdcx,
@@ -487,16 +481,6 @@ def render_funding_summary(root: Path, entries: list[JournalEntry]) -> str:
         milestone_count=len(milestone_amounts),
     )
     return funding_cards(summary)
-
-
-def funding_unavailable(reason: str) -> str:
-    print(f"warning: funding summary not generated: {reason}", file=sys.stderr)
-    return (
-        '<article class="funding-figure"><p class="label">Milestone Balance</p>'
-        '<p class="note">Balance could not be reconciled from the funding schedule, '
-        'claim journal, and transaction metadata. See the latest quarterly report and '
-        'transaction journal.</p></article>'
-    )
 
 
 def format_units(base_units: int, places: int = 2) -> str:
@@ -528,10 +512,7 @@ def funding_cards(summary: FundingSummary) -> str:
 
 def journal_card(entries: list[JournalEntry]) -> str:
     if not entries:
-        return (
-            '<article class="activity-card"><p class="activity-label">Treasury Journal</p>'
-            "<p>No journal entries are available yet.</p></article>"
-        )
+        raise ValueError("no journal entries available")
 
     items: list[str] = []
     for entry in entries[:5]:
@@ -583,7 +564,7 @@ def main() -> int:
         print(f"error: cannot read generated site index {output_index}: {error}", file=sys.stderr)
         return 1
 
-    required_placeholders = {PLACEHOLDER, *PLACEHOLDERS.values()}
+    required_placeholders = {PLACEHOLDER, *PLACEHOLDERS.values(), *ROADMAP_STATUS_PLACEHOLDERS.values()}
     for placeholder in required_placeholders:
         if page.count(placeholder) != 1:
             print(
@@ -594,16 +575,19 @@ def main() -> int:
 
     reports = load_reports(repository_root / "docs" / "reports")
     entries = load_journal(repository_root / "journal")
-    latest_report = reports[0] if reports else None
+    if not reports:
+        raise ValueError("no progress reports available")
+    latest_report = reports[0]
+    validate_latest_report(latest_report)
     replacements = {
         PLACEHOLDER: f"{report_card(reports)}\n{journal_card(entries)}",
         PLACEHOLDERS["status_period"]: status_period(latest_report),
         PLACEHOLDERS["current_status"]: current_status(latest_report),
         PLACEHOLDERS["upcoming"]: context_card(
-            "Upcoming Work", latest_report.upcoming if latest_report else (), latest_report
+            "Upcoming Work", latest_report.upcoming, latest_report
         ),
         PLACEHOLDERS["risks"]: context_card(
-            "Risks and Issues", latest_report.risks if latest_report else (), latest_report
+            "Risks and Issues", latest_report.risks, latest_report
         ),
         PLACEHOLDERS["funding"]: render_funding_summary(repository_root, entries),
     }
@@ -615,6 +599,8 @@ def main() -> int:
     )
     for placeholder, rendered in replacements.items():
         page = page.replace(placeholder, rendered)
+    if "<!-- GENERATED_" in page:
+        raise ValueError("unresolved generated content placeholder")
     output_index.write_text(page, encoding="utf-8")
     print(
         f"Rendered {len(reports)} reports and {min(len(entries), 5)} journal entries"
@@ -624,4 +610,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (OSError, ValueError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        raise SystemExit(1) from None

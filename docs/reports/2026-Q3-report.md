@@ -37,6 +37,15 @@ the sums of the three monthly reports and include dependency updates.
 | Plutigo | V4 evaluator and script-context support | v0.1.17 through v0.8.0 |
 | ouroboros-mock | All-era fixtures and conformance corpus updates | v0.15.0 through v0.20.4 |
 
+## Milestones
+
+| Milestone | Target | Status | Notes |
+|-----------|--------|--------|-------|
+| Q2 2026: Testnet block production and Leios prototype | End of Q2 2026 | Complete | The block-production and Leios-prototype milestone matured at the end of June; M-2 was claimed July 1. |
+| Q3 2026: Operational hardening and storage scalability | End of Q3 2026 | In progress | Storage and operational work advanced; mainnet-scale performance and long-running stability still need validation, and the audit has not started. |
+| Q4 2026: Dijkstra readiness and Leios integration | End of Q4 2026 | Planned | Dijkstra readiness, Plutigo V4, and Leios consensus integration carry into Q4 alongside continued scale and reliability validation. |
+| Q1 2027: Mainnet readiness, audit completion, and ecosystem integration | End of Q1 2027 | Target | Mainnet readiness, audit completion, and ecosystem integration remain the final-quarter targets. |
+
 ## Treasury Operations
 
 On July 1, Blink Labs claimed M-1 Infra May, M-2 Q2 Testnet, and M-3 Infra June
@@ -132,6 +141,15 @@ Detailed per-month breakdowns are in the [July](2026-07-report.md),
 - ouroboros-mock (`v0.15.0` → `v0.20.4`): DRep delegation, an observable
   ChainSync harness, all-era block and protocol fixtures, governance
   observability, Leios mock conversations, and Blueprint corpus validation.
+
+## Upcoming Work
+
+- Continue mainnet-scale storage and long-running stability validation,
+  including cross-node ledger comparisons and target-volume benchmarks.
+- Advance Dijkstra readiness, Plutigo V4, Leios consensus integration, and
+  remaining Node-to-Client and LocalStateQuery work.
+- Complete the claim process for matured M-4 through M-7 milestones and engage
+  the auditor so the board can resume M-10 and the security audit can begin.
 
 ## Risks and Issues
 

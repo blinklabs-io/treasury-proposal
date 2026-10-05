@@ -25,6 +25,9 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Test static site renderer
+        run: python3 scripts/test-render-pages-content.py
+
       - name: Build static site
         run: scripts/build-pages.sh
 

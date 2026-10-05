@@ -97,6 +97,14 @@ roadmap, current milestone balances, and Latest Updates section are generated
 from those sources. The proposal baseline and initial funding history are
 presented as historical context.
 
+Reports are ordered by period end date, with quarterly reports taking priority
+over monthly reports ending on the same date. The latest report must include
+the four roadmap quarters in its `Milestones` table, with statuses `Complete`,
+`In progress`, `Not started`, `Planned`, or `Target`, plus `Upcoming Work` and
+`Risks and Issues` bullet lists. Missing or ambiguous milestones, incomplete
+reports, unreconciled funding, and missing template placeholders fail the build.
+Run `python3 scripts/test-render-pages-content.py` to check the renderer.
+
 ## Transparency Journal
 
 Every on-chain transaction against the treasury and vendor contracts is recorded in [`journal/`](journal/):
